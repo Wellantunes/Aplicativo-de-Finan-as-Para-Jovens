@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar pagamento | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Pagamento</p>
+    <h1 id="titulo-pagina">Marcar como paga</h1>
+    <p class="card-description">
+        {{ saida.descricao }} · R$ {{ saida.valor|floatformat:2 }}
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <button class="button" type="submit">Confirmar pagamento</button>
+        <a class="button button--secondary" href="{{ voltar_url }}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

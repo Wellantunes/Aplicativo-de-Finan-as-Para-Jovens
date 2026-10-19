@@ -1,0 +1,12 @@
+Drop Duo — 10 ícones gerados em pixel art
+
+Formato: PNG RGBA, 32x32 pixels, fundo transparente.
+Arte gerada com IA a partir da referência e convertida para a dimensão solicitada; não é extração pixel por pixel do mockup.
+
+Uso sugerido: copiar PNGs para static/dropduo/icons/.
+Para ampliar: 32, 64 ou 96 px, com image-rendering: pixelated.
+Não esticar em proporções diferentes.
+
+Atualização: 15 assets de cenário em cenarios/, também PNG 32x32.
+Moldura de foto com centro transparente. Avatar ilustrativo padrão.
+Parede/piso/areia são blocos decorativos; repetição pode mostrar bordas.

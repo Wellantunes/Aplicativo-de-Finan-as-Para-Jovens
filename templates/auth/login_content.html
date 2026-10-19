@@ -1,0 +1,16 @@
+{% load socialaccount %}
+<header class="auth-card__header">
+    <p class="auth-card__eyebrow">Bem-vindo de volta</p>
+    <h2 id="titulo-autenticacao">Entre no seu espaço</h2>
+    <p>Seus planos continuam aqui.</p>
+</header>
+
+<form class="auth-google-form" method="post" action="{% provider_login_url 'google' process='login' %}">
+    {% csrf_token %}
+    <button class="auth-google-button" type="submit" data-loading-text="Abrindo Google...">
+        <span class="google-mark" aria-hidden="true">G</span>
+        Continuar com Google
+    </button>
+</form>
+
+<p class="auth-footer">O acesso público do Drop Duo é feito exclusivamente pelo Google.</p>

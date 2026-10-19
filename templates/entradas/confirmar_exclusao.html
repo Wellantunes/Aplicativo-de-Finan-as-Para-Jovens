@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Excluir entrada | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Confirmação</p>
+    <h1 id="titulo-pagina">Excluir entrada?</h1>
+    <p class="card-description">
+        A entrada <strong>{{ entrada.descricao }}</strong>, no valor de
+        <strong>R$ {{ entrada.valor|floatformat:2 }}</strong>, será removida e o
+        saldo da conta será corrigido.
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        <button class="button button--danger" type="submit">Excluir entrada</button>
+        <a class="button button--secondary" href="{{ voltar_url }}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Configurar {{ sala.nome }} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Configurações da sala</p>
+    <h1 id="titulo-pagina">Personalizar espaço</h1>
+    <p class="card-description">
+        O tipo e o símbolo mudam somente a apresentação. Saldos, lançamentos,
+        compartilhamentos e permissões não são alterados.
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}
+                {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="room-symbol-guide" aria-label="Símbolos disponíveis">
+            <span><img class="dropduo-png" src="{% static 'dropduo/scenes/coracao-pequeno.png' %}" alt=""> Coração</span>
+            <span><img class="dropduo-png" src="{% static 'dropduo/icons/bau.png' %}" alt=""> Baú</span>
+        </div>
+
+        <button class="button" type="submit">Salvar configurações</button>
+        <a class="button button--secondary" href="{% url 'salas:detalhe' sala.pk %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

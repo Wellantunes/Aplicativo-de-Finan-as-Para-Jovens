@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if atalho %}Editar{% else %}Novo{% endif %} item | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card shortcut-form-page shortcut-form-page--{{ tipo_inicial }}" aria-labelledby="titulo-atalho" data-shortcut-form-page>
+    <p class="eyebrow">Registro rápido</p>
+    <h1 id="titulo-atalho">{% if atalho %}Editar item{% else %}Novo item{% endif %}</h1>
+    <p class="card-description">Este é um item de {% if tipo_inicial == 'entrada' %}entrada{% else %}saída{% endif %}. Escolha um nome e um símbolo; salvar não movimenta dinheiro.</p>
+
+    <form class="form-stack" method="post" data-shortcut-form>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="field-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+            {% if field.name == 'simbolo' %}
+                <fieldset class="choice-group shortcut-choice-group">
+                    <legend>Símbolo</legend>
+                    <p class="field-help">Escolha um símbolo de {% if tipo_inicial == 'entrada' %}entrada{% else %}saída{% endif %}.</p>
+                    <div class="symbol-options" data-symbol-options>
+                        {% for opcao in opcoes_simbolo %}
+                            <label><input type="radio" name="simbolo" value="{{ opcao.id }}" required {% if form.simbolo.value == opcao.id %}checked{% endif %}><span><img class="dropduo-png" src="{% static opcao.arquivo %}" alt=""><small>{{ opcao.nome }}</small></span></label>
+                        {% endfor %}
+                    </div>
+                    {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+                </fieldset>
+            {% else %}
+                <div class="form-field">{{ field.label_tag }}{{ field }}{% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}{% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+            {% endif %}
+        {% endfor %}
+        <button class="button" type="submit">Salvar item</button>
+        <a class="button button--secondary" href="{% url 'core:lancamentos' %}?tipo={{ tipo_inicial }}{% if mes_consulta %}&mes={{ mes_consulta }}{% endif %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

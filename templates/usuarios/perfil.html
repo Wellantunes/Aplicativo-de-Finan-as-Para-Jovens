@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Meu perfil | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card profile-page" aria-labelledby="titulo-perfil">
+    <p class="eyebrow">Meu espaço</p>
+    <div class="profile-heading">
+        {% include "includes/dropduo_avatar.html" with usuario=user classe="profile-avatar" %}
+        <div class="profile-heading__text">
+            <h1 id="titulo-perfil">{{ user.get_full_name|default:user.username }}</h1>
+            {% if user.email %}<p class="user-email">{{ user.email }}</p>{% endif %}
+        </div>
+        <a class="button button--secondary profile-heading__action" href="{% url 'usuarios:avatar' %}?next={% url 'usuarios:perfil' %}">Editar avatar</a>
+    </div>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}
+                {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+        <button class="button" type="submit">Salvar preferências</button>
+    </form>
+
+    {% if sala_usuario %}
+        <a class="button button--secondary form-section" href="{% url 'usuarios:compartilhamento' %}">Gerenciar compartilhamento</a>
+    {% endif %}
+
+    {% if possui_contas_legadas %}
+        <a class="button button--secondary form-section" href="{% url 'contas:lista' %}">Consultar contas antigas</a>
+    {% endif %}
+
+    <form class="form-section" method="post" action="{% url 'account_logout' %}">
+        {% csrf_token %}
+        <button class="button button--secondary" type="submit">Sair da sessão</button>
+    </form>
+</section>
+{% endblock %}

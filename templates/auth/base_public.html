@@ -1,0 +1,51 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#2855D9">
+    <meta name="description" content="Drop Duo: organize suas finanças no seu espaço ou planeje em dupla.">
+    <title>{% block title %}Drop Duo{% endblock %}</title>
+    <link rel="icon" href="{% static 'images/app-icon.svg' %}" type="image/svg+xml">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20261019-1">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20261019-1">
+</head>
+<body class="auth-public-page">
+    <a class="skip-link" href="#conteudo-autenticacao">Ir para o formulário</a>
+    <main class="auth-main" id="conteudo-autenticacao">
+        <div class="auth-layout">
+            <section class="auth-visual" aria-labelledby="titulo-apresentacao">
+                <p class="auth-wordmark" aria-label="Drop Duo"><span>Drop</span> <span>Duo</span></p>
+                <div class="auth-visual__copy">
+                    <h1 id="titulo-apresentacao">Seu dinheiro. Sua próxima fase.</h1>
+                    <p>Organize suas finanças no seu espaço ou planeje em dupla.</p>
+                </div>
+                <div class="auth-scene" aria-hidden="true">
+                    <img class="auth-scene__cloud dropduo-png" src="{% static 'dropduo/scenes/nuvem.png' %}" alt="">
+                    <img class="auth-scene__blocks dropduo-png" src="{% static 'dropduo/scenes/blocos-pixelados.png' %}" alt="">
+                    <img class="auth-scene__chest dropduo-png" src="{% static 'dropduo/icons/bau.png' %}" alt="">
+                    <img class="auth-scene__plant dropduo-png" src="{% static 'dropduo/scenes/planta-pequena.png' %}" alt="">
+                    <img class="auth-scene__grass dropduo-png" src="{% static 'dropduo/scenes/terreno-grama.png' %}" alt="">
+                    <img class="auth-scene__soil dropduo-png" src="{% static 'dropduo/scenes/terreno.png' %}" alt="">
+                </div>
+            </section>
+
+            <section class="auth-card" aria-labelledby="titulo-autenticacao">
+                {% if messages %}
+                    <div class="auth-messages" aria-label="Notificações">
+                        {% for message in messages %}
+                            <div class="auth-message auth-message--{{ message.tags|default:'info' }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" data-dismissible-message {% if "login-success" in message.tags %}data-auto-dismiss-message{% endif %}>
+                                <span>{{ message }}</span>
+                                <button type="button" aria-label="Dispensar aviso" data-dismiss-message>×</button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% block auth_content %}{% endblock %}
+            </section>
+        </div>
+    </main>
+    <script src="{% static 'js/app.js' %}?v=20261018-1"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Excluir saída | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Confirmação</p>
+    <h1 id="titulo-pagina">Excluir saída?</h1>
+    <p class="card-description">
+        A saída <strong>{{ saida.descricao }}</strong>, no valor de
+        <strong>R$ {{ saida.valor|floatformat:2 }}</strong>, será removida.
+        {% if saida.situacao == 'paga' %}O desconto será devolvido ao saldo.{% endif %}
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        <button class="button button--danger" type="submit">Excluir saída</button>
+        <a class="button button--secondary" href="{{ voltar_url }}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

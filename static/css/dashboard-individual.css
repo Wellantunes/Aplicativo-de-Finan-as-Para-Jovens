@@ -1,0 +1,591 @@
+/* Dashboard individual do Drop Duo.
+   Este arquivo é carregado somente quando o espaço ativo é individual. */
+
+.individual-dashboard-page .site-header,
+.individual-dashboard-page .workspace-indicator {
+    display: none;
+}
+
+.individual-dashboard-page .main-content {
+    padding: 14px 14px 116px;
+}
+
+.dd-dashboard {
+    width: 100%;
+    color: var(--marinho);
+}
+
+.dd-dashboard .dd-icon {
+    width: 32px;
+    height: 32px;
+    display: block;
+    flex: 0 0 auto;
+}
+
+.dd-header {
+    min-height: 68px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.dd-header__identity {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.dd-avatar {
+    width: 64px;
+    height: 64px;
+    flex: 0 0 64px;
+}
+
+.dd-avatar-link {
+    width: 64px;
+    height: 64px;
+    display: block;
+    flex: 0 0 64px;
+    text-decoration: none;
+}
+
+.dd-avatar-link:focus-visible {
+    outline: 4px solid var(--dourado);
+    outline-offset: 3px;
+}
+
+.dd-header h1 {
+    margin: 0;
+    font: 700 clamp(1.5rem, 7vw, 2rem)/1 var(--fonte-pixel);
+}
+
+.dd-header p {
+    margin: 3px 0 0;
+    font-size: .96rem;
+}
+
+.dd-profile-button {
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 46px;
+    border: var(--borda);
+    border-radius: var(--raio-pixel);
+    color: var(--marinho);
+    background: var(--creme-claro);
+    box-shadow: var(--sombra-forte);
+}
+
+.dd-month {
+    margin-top: 4px;
+}
+
+.dd-month .month-navigation__picker { margin: 0; font-size: .82rem; }
+
+.dd-summary {
+    margin-top: 10px;
+    display: grid;
+    gap: 9px;
+}
+
+.dd-available,
+.dd-mini-card,
+.dd-budget,
+.dd-food-balance,
+.dd-room {
+    border: var(--borda);
+    border-radius: var(--raio-pixel);
+    box-shadow: var(--sombra-curta);
+}
+
+.dd-available {
+    min-height: 92px;
+    padding: 12px 13px;
+    display: grid;
+    grid-template-columns: 50px minmax(0, 1fr) 24px;
+    gap: 9px;
+    align-items: center;
+    color: var(--branco);
+    background: var(--azul);
+    box-shadow: var(--sombra-forte);
+}
+.dd-available--deficit { background: var(--coral); }
+.dd-available small { display: block; margin-top: 4px; color: var(--branco); font-weight: 800; }
+
+.dd-available .dd-icon--coins {
+    width: 32px;
+    height: 32px;
+}
+
+.dd-available span,
+.dd-mini-card span,
+.dd-budget span,
+.dd-food-balance span {
+    display: block;
+    font-size: .82rem;
+    font-weight: 800;
+}
+
+.dd-available strong {
+    display: block;
+    margin-top: 2px;
+    color: var(--branco);
+    font: 800 clamp(1.75rem, 8vw, 2.35rem)/1 var(--fonte-texto);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -.02em;
+    white-space: nowrap;
+}
+
+.dd-help {
+    width: 24px;
+    height: 24px;
+    display: grid !important;
+    place-items: center;
+    border-radius: 50%;
+    color: var(--branco);
+    background: rgba(255, 255, 255, .22);
+    font-size: .76rem !important;
+}
+
+.dd-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+.dd-pair--single {
+    grid-template-columns: 1fr;
+}
+
+.dd-mini-card {
+    min-width: 0;
+    min-height: 66px;
+    padding: 9px 10px;
+    display: grid;
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 8px;
+    align-items: center;
+    background: var(--superficie);
+}
+.dd-tithe-card { width: 100%; }
+
+.dd-mini-card .dd-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.dd-mini-card strong,
+.dd-food-balance strong {
+    display: block;
+    margin-top: 2px;
+    font-size: 1rem;
+    line-height: 1.05;
+    white-space: nowrap;
+}
+
+.dd-budget {
+    min-height: 78px;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 36px minmax(0, 1fr) auto;
+    gap: 9px;
+    align-items: center;
+    background: var(--superficie);
+}
+
+.dd-budget .dd-icon,
+.dd-food-balance .dd-icon {
+    width: 32px;
+    height: 32px;
+}
+
+.dd-budget__content p {
+    margin: 2px 0 0;
+    font-size: .85rem;
+}
+
+.dd-budget__content p strong {
+    font-size: 1rem;
+}
+
+.dd-budget__percent {
+    align-self: center;
+    font-size: .9rem;
+}
+
+.dd-progress {
+    height: 13px;
+    margin-top: 6px;
+    border: 2px solid var(--marinho);
+    background: #d9dbe0;
+    overflow: hidden;
+}
+
+.dd-progress span {
+    height: 100%;
+    background: var(--dourado);
+}
+
+.dd-food-balance {
+    min-height: 60px;
+    padding: 9px 11px;
+    display: grid;
+    grid-template-columns: 36px 1fr auto;
+    gap: 9px;
+    align-items: center;
+    background: #f4f8e8;
+}
+
+.dd-food-balance > span:last-child {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    color: var(--marinho);
+    text-decoration: none;
+    font-size: 1.6rem;
+}
+
+.dd-room {
+    margin-top: 12px;
+    overflow: hidden;
+    background: var(--superficie);
+    box-shadow: var(--sombra-forte);
+}
+
+.dd-room__header {
+    min-height: 44px;
+    padding: 8px 11px;
+    display: grid;
+    grid-template-columns: 28px 1fr auto;
+    gap: 8px;
+    align-items: center;
+    color: var(--branco);
+    background: var(--coral);
+}
+
+.dd-room__header h2 {
+    margin: 0;
+    color: var(--branco);
+    font: 700 1.3rem var(--fonte-pixel);
+}
+
+.dd-room__header a {
+    min-width: 44px;
+    min-height: 44px;
+    display: grid;
+    place-items: center;
+    color: var(--branco);
+    text-decoration: none;
+    font-weight: 900;
+}
+
+.dd-room__scene {
+    position: relative;
+    min-height: 132px;
+    padding: 22px 68px 13px;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #fff5dc 0 73%, #f4c56a 73% 100%);
+}
+
+.dd-room__decorations {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.dd-room__decorations img {
+    position: absolute;
+}
+
+.dd-room__wall {
+    top: 5px;
+    left: 16px;
+    width: 64px;
+    height: 64px;
+    opacity: .65;
+}
+
+.dd-room__picture {
+    top: 13px;
+    left: 32px;
+    width: 32px;
+    height: 32px;
+}
+
+.dd-room__plant {
+    left: 5px;
+    bottom: 0;
+    width: 64px;
+    height: 64px;
+}
+
+.dd-room__floor {
+    left: 72px;
+    bottom: -8px;
+    width: 64px;
+    height: 64px;
+    opacity: .7;
+}
+
+.dd-room__lamp {
+    right: 5px;
+    bottom: 0;
+    width: 64px;
+    height: 64px;
+}
+
+.dd-room__members {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    list-style: none;
+}
+
+.dd-room__members li {
+    min-width: 62px;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    text-align: center;
+}
+
+.dd-room__avatar {
+    width: 64px;
+    height: 64px;
+    flex-basis: 64px;
+}
+
+.dd-room__members li strong {
+    max-width: 78px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .76rem;
+}
+
+.dd-room__symbol {
+    width: 32px;
+    height: 32px;
+    flex: 0 0 32px;
+}
+
+.dd-room__invite-slot span {
+    width: 54px;
+    height: 54px;
+    display: grid;
+    place-items: center;
+    border: 3px dashed var(--marinho);
+    border-radius: 50%;
+    color: var(--azul);
+    background: rgba(255, 244, 220, .92);
+    font: 700 1.6rem var(--fonte-pixel);
+}
+
+.dd-room__scene--empty {
+    padding-inline: 72px;
+    text-align: center;
+}
+
+.dd-room__scene--empty > :not(.dd-room__decorations) {
+    position: relative;
+    z-index: 1;
+    padding: 7px;
+    background: rgba(255, 245, 220, .88);
+}
+
+.dd-room__scene--empty p {
+    margin: 5px 0 0;
+    font-size: .82rem;
+}
+
+.dd-room__button {
+    width: calc(100% - 24px);
+    min-height: 46px;
+    margin: 0 12px 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    border: var(--borda);
+    border-radius: var(--raio-pixel);
+    color: var(--branco);
+    background: var(--azul);
+    box-shadow: var(--sombra-forte);
+    text-decoration: none;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.dd-more {
+    margin-top: 18px;
+    border: var(--borda);
+    border-radius: var(--raio-pixel);
+    background: var(--superficie);
+    box-shadow: var(--sombra-curta);
+    overflow: hidden;
+}
+
+.dd-more > summary {
+    min-height: 48px;
+    padding: 11px 13px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: var(--marinho);
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.dd-more > summary::after {
+    content: "+";
+    font: 700 1.4rem var(--fonte-pixel);
+}
+
+.dd-more[open] > summary::after {
+    content: "−";
+}
+
+.dd-more__content {
+    padding: 0 12px 14px;
+    display: grid;
+    gap: 18px;
+}
+
+.dd-more__content h2 {
+    margin: 0 0 9px;
+    font-size: 1.1rem;
+}
+
+.dd-period {
+    padding-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    border-top: 1px solid var(--cinza-claro);
+}
+
+.dd-period button {
+    min-height: 44px;
+    padding: 7px 10px;
+    border: 1px solid var(--marinho);
+    color: var(--marinho);
+    background: var(--creme);
+    font-weight: 700;
+}
+
+.dd-shortcuts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+}
+
+.dd-shortcuts a {
+    min-height: 44px;
+    padding: 8px 5px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--marinho);
+    color: var(--marinho);
+    background: var(--amarelo-claro);
+    text-align: center;
+    text-decoration: none;
+    font-size: .76rem;
+    font-weight: 800;
+}
+
+.individual-dashboard-page .bottom-navigation {
+    padding-inline: 7px;
+}
+
+.individual-dashboard-page .quick-add summary {
+    color: var(--branco);
+}
+
+.individual-dashboard-page .main-content--with-nav {
+    padding-bottom: 118px;
+}
+
+.individual-dashboard-page .dashboard.values-hidden .financial-value,
+.individual-dashboard-page .dashboard.values-hidden .metric-card strong,
+.individual-dashboard-page .dashboard.values-hidden .commitment-card strong,
+.individual-dashboard-page .dashboard.values-hidden .record-value {
+    color: transparent !important;
+    text-shadow: 0 0 9px rgba(7, 29, 73, .8);
+    user-select: none;
+}
+
+@media (max-width: 374px) {
+    .individual-dashboard-page .main-content {
+        padding-inline: 10px;
+    }
+
+    .dd-header h1 {
+        font-size: 1.45rem;
+    }
+
+    .dd-available {
+        grid-template-columns: 42px minmax(0, 1fr) 22px;
+        padding-inline: 10px;
+    }
+
+    .dd-available .dd-icon--coins {
+        width: 32px;
+        height: 32px;
+    }
+
+    .dd-available strong { font-size: 1.65rem; }
+    .dd-forecast { grid-template-columns: 1fr; }
+
+    .dd-mini-card {
+        grid-template-columns: 29px minmax(0, 1fr);
+        gap: 6px;
+        padding-inline: 8px;
+    }
+
+    .dd-mini-card .dd-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .dd-budget {
+        grid-template-columns: 31px minmax(0, 1fr) auto;
+        gap: 7px;
+    }
+
+    .dd-room__scene {
+        padding-inline: 54px;
+    }
+}
+
+@media (min-width: 431px) {
+    .dd-dashboard {
+        max-width: 430px;
+        margin-inline: auto;
+    }
+}
+
+@media (max-width: 340px) {
+    .dd-pair:not(.dd-pair--single) {
+        grid-template-columns: 1fr;
+    }
+
+    .dd-room__scene {
+        padding-inline: 48px;
+    }
+}

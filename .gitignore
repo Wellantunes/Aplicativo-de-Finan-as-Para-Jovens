@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+build/
+dist/
+
+# Ambientes virtuais
+.venv/
+venv/
+
+# Django
+db.sqlite3
+staticfiles/
+media/
+
+# Variaveis de ambiente
+.env
+.env.*
+!.env.example
+
+# Logs e arquivos temporarios
+*.log
+*.tmp
+*.bak
+*.dump
+*.swp
+~$*
+
+# Capturas locais de validacao visual
+docs/screenshots/
+
+# Editores e sistema operacional
+.idea/
+.DS_Store
+Thumbs.db

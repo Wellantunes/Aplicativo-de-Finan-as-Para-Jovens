@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo }} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">{% if tipo_formulario == 'cartao' %}Cartões{% else %}Contas{% endif %}</p>
+    <h1 id="titulo-pagina">{{ titulo }}</h1>
+    <p class="card-description">{{ descricao }}</p>
+    {% if tipo_formulario == 'cartao' and cartao %}
+        <p class="notice-box">As novas regras valem somente para ciclos ainda não criados. Datas, compras e pagamentos das faturas existentes serão preservados.</p>
+    {% endif %}
+
+    <form class="form-stack form-section{% if tipo_formulario == 'cartao' %} card-form{% endif %}" method="post"{% if tipo_formulario == 'cartao' %} data-card-form{% endif %}>
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-field">
+                {% if tipo_formulario == 'cartao' and field.name == 'cor_simbolo' %}
+                    <span class="field-label">Cor do símbolo</span>
+                    <div class="card-color-options" role="radiogroup" aria-label="Cor do símbolo">
+                        {% for valor, nome in field.field.choices %}
+                            <label>
+                                <input type="radio" name="{{ field.html_name }}" value="{{ valor }}" {% if field.value == valor %}checked{% endif %}>
+                                <span><img class="dropduo-png" src="{% static 'dropduo/cards/cartao-'|add:valor|add:'.svg' %}" alt=""><small>{{ nome }}</small></span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ field.label_tag }}
+                    {{ field }}
+                {% endif %}
+                {% if field.help_text %}
+                    <p class="field-help">{{ field.help_text }}</p>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        {% for error in form.non_field_errors %}
+            <p class="field-error" role="alert">{{ error }}</p>
+        {% endfor %}
+
+        <button class="button" type="submit">{{ texto_botao }}</button>
+        {% if cartao %}
+            <a class="button button--secondary" href="{% url 'cartoes:detalhe_cartao' cartao.pk %}">Cancelar</a>
+        {% elif url_cancelar == 'cartoes:lista' %}
+            <a class="button button--secondary" href="{% url 'cartoes:lista' %}">Cancelar</a>
+        {% else %}
+            <a class="button button--secondary" href="{% url 'contas:lista' %}">Cancelar</a>
+        {% endif %}
+    </form>
+</section>
+{% endblock %}

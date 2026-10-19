@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static financeiro %}
+{% block title %}{{ titulo_espaco }} | Drop Duo{% endblock %}
+{% block body_class %}{% if sala %}dashboard-page{% else %}individual-dashboard-page{% endif %}{% endblock %}
+{% block extra_styles %}{% if not sala %}<link rel="stylesheet" href="{% static 'css/dashboard-individual.css' %}?v=20261019-1">{% endif %}{% endblock %}
+{% block content %}
+{% if not sala %}
+    {% include "dashboard/individual.html" %}
+{% else %}
+<section class="content-card dashboard" aria-labelledby="titulo-dashboard">
+    <span class="sr-only">Painel mensal</span>
+    <div class="dashboard-hero{% if sala %} shared-heading{% endif %}">
+        {% if sala %}
+            <a class="back-link" href="{% url 'salas:voltar_individual' %}">‹ Voltar ao meu espaço</a>
+            <h1 id="titulo-dashboard">{{ sala.nome }}</h1>
+            <div class="room-members-hero">
+                <ul class="member-list" aria-label="Participantes da sala">
+                    {% for membro in sala.membros.all %}
+                        <li class="member-item">
+                            {% include "includes/dropduo_avatar.html" with usuario=membro.usuario classe="shared-member-avatar" %}
+                            <strong>{{ membro.usuario.first_name|default:membro.usuario.username }}</strong>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <span class="room-members-hero__label">Espaço<br>compartilhado</span>
+            </div>
+        {% else %}
+            <h1 class="dashboard-title" id="titulo-dashboard">Olá, {{ user.first_name|default:user.username }}</h1>
+            <p class="dashboard-subtitle">Meu espaço</p>
+        {% endif %}
+
+        <form class="filter-form dashboard-filter{% if not sala %} dashboard-filter--individual{% endif %}" method="get" data-auto-submit>
+            <div class="form-field dashboard-month-field">
+                {% include "dashboard/month_navigation.html" %}
+                {% for erro in filtro.mes.errors %}<p class="field-error">{{ erro }}</p>{% endfor %}
+            </div>
+            {% if sala %}
+                <fieldset class="room-filter-pills">
+                    <legend class="sr-only">{{ filtro.responsavel.label }}</legend>
+                    {% for valor, rotulo in filtro.responsavel.field.choices %}
+                        <label><input type="radio" name="responsavel" value="{{ valor }}" {% if filtro.responsavel.value == valor %}checked{% endif %}><span>{{ rotulo }}</span></label>
+                    {% endfor %}
+                </fieldset>
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="dashboard-summary">
+        <article class="available-card{% if mes_em_deficit %} available-card--deficit{% endif %}">
+            {% include "includes/dropduo_icon.html" with caminho="dropduo/icons/moedas-empilhadas.png" classe="pixel-icon" decorativo=True %}
+            <div><span>Resultado do mês</span><strong class="financial-value">{{ resultado_mes|moeda_br }}</strong>{% if mes_em_deficit %}<small>Déficit no mês</small>{% endif %}</div>
+            <button class="available-card__help" type="button" title="Entradas em dinheiro menos saídas em dinheiro. O vale-alimentação é acompanhado separadamente." aria-label="Entradas em dinheiro menos saídas em dinheiro. O vale-alimentação é acompanhado separadamente.">?</button>
+        </article>
+        <div class="dashboard-pair">
+            <a class="mini-stat dashboard-card-link" href="{{ link_entradas }}">{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/seta-entrada.png" classe="pixel-icon" decorativo=True %}<div><span>Entradas do mês</span><strong class="financial-value">R$ {{ total_entradas_mes|floatformat:2 }}</strong></div></a>
+            <a class="mini-stat dashboard-card-link" href="{{ link_saidas }}">{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/carteira.png" classe="pixel-icon" decorativo=True %}<div><span>Saídas do mês</span><strong class="financial-value">R$ {{ total_saidas_mes|floatformat:2 }}</strong></div></a>
+        </div>
+        {% if controla_dizimos %}<a class="mini-stat dashboard-card-link" href="{{ link_dizimos }}">{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/coracao.png" classe="pixel-icon" decorativo=True %}<div><span>Dízimos previstos</span><strong class="financial-value">R$ {{ dizimo_previsto|floatformat:2 }}</strong></div></a>{% endif %}
+        <a class="budget-card dashboard-card-link" href="{{ link_custo_vida }}">
+            {% include "includes/dropduo_icon.html" with caminho="dropduo/icons/casa.png" classe="pixel-icon" decorativo=True %}
+            <div><p>Custo de vida</p><strong class="financial-value">R$ {{ custo_vida|floatformat:2 }}</strong> de R$ {{ orcamento_custo_vida|floatformat:2 }}<div class="pixel-progress" role="progressbar" aria-valuenow="{{ percentual_custo_vida }}" aria-valuemin="0" aria-valuemax="100"><span style="width: {{ percentual_custo_vida }}%"></span></div></div>
+            <strong>{{ percentual_custo_vida }}%</strong>
+        </a>
+        <a class="vale-card dashboard-card-link" href="{{ link_vale }}">{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/talheres.png" classe="pixel-icon" decorativo=True %}<div><p>Vale no mês</p><strong class="financial-value">R$ {{ vale_mes|floatformat:2 }}</strong></div><span aria-hidden="true">›</span></a>
+    </div>
+
+    <div class="dashboard-period">
+        {% if tipo_periodo == "fechamento" %}<span class="status-badge">Fechamento do mês</span>{% elif tipo_periodo == "previsao" %}<span class="status-badge status-badge--pendente">Mês futuro</span>{% else %}<span class="status-badge status-badge--paga">Mês atual</span>{% endif %}
+        <small>Entradas em dinheiro menos saídas em dinheiro. O vale-alimentação é acompanhado separadamente.</small>
+    </div>
+    <div class="privacy-control"><button type="button" data-toggle-values aria-pressed="false">Ocultar valores</button></div>
+    <nav class="dashboard-shortcuts" aria-label="Atalhos de lançamentos"><a href="{% url 'core:lancamentos' %}?tipo=entrada&amp;mes={{ mes_selecionado }}">+ Entrada</a><a href="{% url 'core:lancamentos' %}?tipo=saida&amp;mes={{ mes_selecionado }}">+ Saída</a><a href="{% url 'core:lancamentos' %}?tipo=saida&amp;mes={{ mes_selecionado }}">+ Compra</a></nav>
+
+    <section class="section-block" aria-labelledby="titulo-orcamento"><h2 id="titulo-orcamento">Orçamento do mês</h2><div class="metric-grid"><article class="metric-card metric-card--main"><span>Orçamento mensal</span><strong>R$ {{ orcamento_custo_vida|floatformat:2 }}</strong></article><article class="metric-card"><span>Cadastrado</span><strong>R$ {{ custo_vida|floatformat:2 }}</strong></article><article class="metric-card"><span>Restante</span><strong>R$ {{ orcamento_restante|floatformat:2 }}</strong></article></div></section>
+
+    <section class="section-block" aria-labelledby="titulo-movimentos"><h2 id="titulo-movimentos">Resumo do mês</h2><div class="metric-grid"><article class="metric-card"><span>Renda líquida informada</span><strong>R$ {{ renda_prevista|floatformat:2 }}</strong><small>Informativa; não altera o resultado.</small></article><article class="metric-card"><span>Entradas em dinheiro</span><strong>R$ {{ entradas_dinheiro|floatformat:2 }}</strong></article><article class="metric-card metric-card--vale"><span>Vale recebido</span><strong>R$ {{ vale_mes|floatformat:2 }}</strong><small>Usado no mês: R$ {{ saidas_vale_mes|floatformat:2 }}</small></article><article class="metric-card"><span>Outros gastos</span><strong>R$ {{ outros_gastos|floatformat:2 }}</strong></article><article class="metric-card"><span>Saídas de dinheiro</span><strong>R$ {{ saidas_dinheiro|floatformat:2 }}</strong><small>Pagamentos realizados, sem repetir parcelas.</small></article></div></section>
+
+    {% if controla_dizimos %}<section class="section-block" aria-labelledby="titulo-dizimos"><h2 id="titulo-dizimos">Dízimos</h2><div class="metric-grid metric-grid--three"><article class="metric-card"><span>Previsto nas entradas</span><strong>R$ {{ dizimo_previsto|floatformat:2 }}</strong></article><article class="metric-card"><span>Devolvido no mês</span><strong>R$ {{ dizimo_devolvido|floatformat:2 }}</strong></article><article class="metric-card"><span>Pendente</span><strong>R$ {{ dizimo_pendente|floatformat:2 }}</strong></article></div></section>{% endif %}
+
+    <section class="section-block" aria-labelledby="titulo-saldos"><h2 id="titulo-saldos">Saldos na referência</h2>{% if responsavel %}<p class="record-note">No filtro individual, aparecem as contas da pessoa selecionada.</p>{% endif %}<div class="money-sections"><div class="money-section"><p class="money-section__title">Dinheiro</p><p class="money-section__total">R$ {{ saldo_dinheiro|floatformat:2 }}</p>{% for item in saldos_dinheiro_contas %}<span>{{ item.conta.nome }}: R$ {{ item.saldo|floatformat:2 }}</span>{% empty %}<span>Nenhuma conta em dinheiro.</span>{% endfor %}</div><div class="money-section money-section--vale"><p class="money-section__title">Vale-alimentação</p><p class="money-section__total">R$ {{ saldo_vale|floatformat:2 }}</p>{% for item in saldos_vale_contas %}<span>{{ item.conta.nome }}: R$ {{ item.saldo|floatformat:2 }}</span>{% empty %}<span>Nenhuma conta de vale.</span>{% endfor %}</div></div></section>
+
+    <section class="section-block" aria-labelledby="titulo-compromissos"><h2 id="titulo-compromissos">Compromissos em dinheiro</h2><div class="commitment-card"><div><span>Contas pendentes</span><strong>R$ {{ compromissos_saidas|floatformat:2 }}</strong></div><div><span>Faturas restantes</span><strong>R$ {{ compromissos_faturas|floatformat:2 }}</strong></div>{% if controla_dizimos %}<div><span>Dízimos pendentes</span><strong>R$ {{ compromissos_dizimo|floatformat:2 }}</strong></div>{% endif %}<div class="commitment-card__total"><span>Total</span><strong>R$ {{ compromissos_dinheiro|floatformat:2 }}</strong></div><div class="commitment-card__available"><span>Disponível após compromissos</span><strong>R$ {{ disponivel_apos_compromissos|floatformat:2 }}</strong></div></div></section>
+
+    <section class="section-block" aria-labelledby="titulo-vencimentos"><div class="section-heading"><h2 id="titulo-vencimentos">Atrasadas e próximas</h2><a href="{{ link_saidas }}">Ver todas</a></div><div class="record-list">{% for saida in compromissos_lista %}<article class="record-card"><div class="record-heading"><div><h3>{{ saida.descricao }}</h3><p>{{ saida.responsavel.get_full_name|default:saida.responsavel.username }}</p></div><p class="record-value">R$ {{ saida.valor|floatformat:2 }}</p></div><div class="record-meta">{% if saida.vencimento < referencia %}<span class="status-badge status-badge--atrasada">Atrasada</span>{% else %}<span class="status-badge status-badge--pendente">Vence em breve</span>{% endif %}<span class="status-badge">{{ saida.vencimento|date:"d/m/Y" }}</span></div></article>{% empty %}<p class="empty-state">Nenhuma conta atrasada ou próxima.</p>{% endfor %}</div></section>
+
+    <section class="section-block" aria-labelledby="titulo-faturas"><div class="section-heading"><h2 id="titulo-faturas">Faturas do mês</h2><a href="{% url 'cartoes:lista' %}">Ver todas</a></div><p class="record-note">O mês da fatura é o mês do vencimento.</p><div class="record-list">{% for item in faturas_resumo %}<article class="record-card"><div class="record-heading"><div><h3>{{ item.fatura.cartao.nome }}</h3><p>Vence em {{ item.fatura.data_vencimento|date:"d/m/Y" }}</p></div><p class="record-value">R$ {{ item.valor|floatformat:2 }}</p></div>{% if item.possui_itens_privados %}<p class="record-note">Subtotal visível na sala. Total real: R$ {{ item.valor_total_real|floatformat:2 }}.</p>{% endif %}<div class="record-meta"><span class="status-badge {% if item.paga %}status-badge--paga{% else %}status-badge--pendente{% endif %}">{% if item.paga %}Paga{% else %}Pendente{% endif %}</span></div><a class="record-link" href="{% url 'cartoes:detalhe_fatura' item.fatura.pk %}">Ver fatura</a></article>{% empty %}<p class="empty-state">Nenhuma fatura neste mês.</p>{% endfor %}</div></section>
+
+    {% if sala %}<a class="button button--secondary form-section" href="{% url 'salas:voltar_individual' %}">Voltar ao meu espaço</a>{% else %}<a class="button button--secondary form-section" href="{% url 'usuarios:perfil' %}">Editar orçamento e preferências</a>{% endif %}
+</section>
+{% endif %}
+{% endblock %}

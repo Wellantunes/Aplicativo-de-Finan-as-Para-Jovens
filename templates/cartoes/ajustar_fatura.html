@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Ajustar fatura | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">{{ fatura.cartao.nome }}</p>
+    <h1 id="titulo-pagina">Ajustar fatura</h1>
+    <p class="card-description">A correção vale somente para esta fatura. As regras gerais do cartão e os vínculos das compras não serão alterados.</p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+        {% for field in form %}
+            <div class="form-field{% if field.field.widget.input_type == 'checkbox' %} checkbox-field{% endif %}">
+                {% if field.field.widget.input_type == 'checkbox' %}{{ field }} {{ field.label_tag }}{% else %}{{ field.label_tag }} {{ field }}{% endif %}
+                {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+
+        {% if compras_afetadas %}
+            <div class="notice-box">
+                <strong>Compras potencialmente fora do novo ciclo</strong>
+                <ul>{% for compra in compras_afetadas %}<li>{{ compra.descricao }} · {{ compra.data_compra|date:"d/m/Y" }}</li>{% endfor %}</ul>
+                <p>Elas continuarão nesta fatura. Se necessário, corrija cada compra explicitamente depois.</p>
+            </div>
+        {% endif %}
+        <button class="button" type="submit">Salvar datas desta fatura</button>
+        <a class="button button--secondary" href="{% url 'cartoes:detalhe_fatura' fatura.pk %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

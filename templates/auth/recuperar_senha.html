@@ -1,0 +1,23 @@
+{% extends "auth/base_public.html" %}
+{% load socialaccount %}
+{% block title %}Recuperar acesso | Drop Duo{% endblock %}
+{% block auth_content %}
+<header class="auth-card__header">
+    <p class="auth-card__eyebrow">Ajuda para entrar</p>
+    <h2 id="titulo-autenticacao">Recuperar acesso</h2>
+    <p>O acesso público do Drop Duo é administrado pela sua conta Google.</p>
+</header>
+
+<a class="auth-back-link" href="{% url 'core:entrar' %}">← Voltar para entrar</a>
+
+<div class="auth-google-return">
+    <p>Use o Google para retornar ao seu espaço. Senhas não são gerenciadas pelo Drop Duo.</p>
+    <form class="auth-google-form" method="post" action="{% provider_login_url 'google' process='login' %}">
+        {% csrf_token %}
+        <button class="auth-google-button" type="submit" data-loading-text="Abrindo Google...">
+            <span class="google-mark" aria-hidden="true">G</span>
+            Continuar com Google
+        </button>
+    </form>
+</div>
+{% endblock %}

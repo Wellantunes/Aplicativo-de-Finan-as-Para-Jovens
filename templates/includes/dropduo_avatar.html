@@ -1,0 +1,48 @@
+{% load static %}
+<span class="dropduo-avatar {{ classe|default:'' }}">
+    <svg
+        class="dropduo-avatar__figure"
+        viewBox="0 0 64 64"
+        role="img"
+        aria-label="Avatar de {{ usuario.get_full_name|default:usuario.username }}"
+        shape-rendering="crispEdges"
+        data-avatar-figure
+        data-pele="{{ usuario.avatar_pele }}"
+        data-cabelo="{{ usuario.avatar_cabelo }}"
+        data-olhos="{{ usuario.avatar_olhos }}"
+        data-sobrancelhas="{{ usuario.avatar_sobrancelhas }}"
+        data-barba="{{ usuario.avatar_barba }}"
+        data-oculos="{{ usuario.avatar_oculos }}"
+        data-roupa="{{ usuario.avatar_roupa }}"
+    >
+        <rect width="64" height="64" class="avatar-background" />
+        <path d="M4 64V54H8V48H18V44H46V48H56V54H60V64Z" class="avatar-outline" />
+        <path d="M8 64V54H14V50H22L32 58 42 50H50V54H56V64Z" class="avatar-clothing" />
+        <path d="M20 50L28 58H20ZM44 50L36 58H44Z" class="avatar-shirt-shadow" />
+        <path d="M24 42H40V52L32 58 24 52Z" class="avatar-neck" />
+        <path d="M12 24H18V38H12V34H10V28H12ZM46 24H52V28H54V34H52V38H46Z" class="avatar-outline" />
+        <path d="M12 26H18V36H12ZM46 26H52V36H46Z" class="avatar-skin" />
+        <path d="M16 14H48V38H44V44H38V48H26V44H20V38H16Z" class="avatar-outline" />
+        <path d="M18 16H46V38H42V42H36V46H28V42H22V38H18Z" class="avatar-skin" />
+        <g class="avatar-hair-full">
+            <path d="M14 12H18V8H24V6H42V8H48V12H50V26H46V20H42V16H22V18H18V28H14Z" class="avatar-hair" />
+            <path d="M20 10H28V8H38V10H44V12H36V14H22V16H18V12H20Z" class="avatar-hair-highlight" />
+            <path d="M14 22H18V34H16V30H14ZM46 20H50V34H48V28H46Z" class="avatar-hair" />
+        </g>
+        <path d="M16 12H20V10H44V12H48V18H16Z" class="avatar-hair avatar-hair-shaved" />
+        <g class="avatar-brows avatar-brows--soft"><path d="M21 24H29V26H21ZM35 24H43V26H35Z" /></g>
+        <g class="avatar-brows avatar-brows--strong"><path d="M20 22H30V26H22V24H20ZM34 22H44V24H42V26H34Z" /></g>
+        <path d="M21 27H29V33H21ZM35 27H43V33H35Z" class="avatar-eye-white" />
+        <path d="M24 27H28V33H24ZM36 27H40V33H36Z" class="avatar-eyes" />
+        <path d="M26 29H28V31H26ZM38 29H40V31H38Z" class="avatar-outline" />
+        <path d="M30 30H34V36H38V38H30Z" class="avatar-nose" />
+        <path d="M26 39H38V41H36V43H28V41H26Z" class="avatar-mouth" />
+        <g class="avatar-beard avatar-beard--full"><path d="M18 34H22V40H26V44H30V46H36V44H40V40H44V34H48V42H44V46H40V50H24V48H20V44H18Z" /></g>
+        <g class="avatar-beard avatar-beard--goatee"><path d="M28 40H36V44H38V50H34V52H30V50H28Z" /></g>
+        <g class="avatar-glasses avatar-glasses--round"><path d="M18 26H30V28H32V30H34V28H36V26H48V36H36V34H34V32H30V34H28V36H18ZM21 28V34H28V28ZM36 28V34H45V28Z" fill-rule="evenodd" /></g>
+        <g class="avatar-glasses avatar-glasses--square"><path d="M18 25H31V28H33V30H35V28H36V25H49V36H36V34H35V32H33V34H31V36H18ZM21 28V33H28V28ZM39 28V33H46V28Z" fill-rule="evenodd" /></g>
+    </svg>
+    {% if usuario.usa_avatar_v2 %}
+        {% include "includes/dropduo_avatar_v2_canvas.html" with avatar_base=usuario.avatar_v2_base avatar_pele=usuario.avatar_v2_pele avatar_cabelo=usuario.avatar_v2_cabelo avatar_cor_cabelo=usuario.avatar_v2_cor_cabelo avatar_barba=usuario.avatar_v2_barba avatar_roupa=usuario.avatar_v2_roupa avatar_cor_roupa=usuario.avatar_v2_cor_roupa rotulo_avatar="Avatar de "|add:usuario.username %}
+    {% endif %}
+</span>

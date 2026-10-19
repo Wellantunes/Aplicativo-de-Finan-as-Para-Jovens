@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar recebimento | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-recebimento">
+    <p class="eyebrow">Entrada prevista</p>
+    <h1 id="titulo-recebimento">Confirmar recebimento</h1>
+    <p class="card-description">{{ entrada.descricao }} · R$ {{ entrada.valor|floatformat:2 }}</p>
+    <p class="field-help">A entrada existente será atualizada. Nenhum lançamento duplicado será criado.</p>
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="field-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-field">{{ form.data_recebimento.label_tag }}{{ form.data_recebimento }}{% for error in form.data_recebimento.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+        <button class="button" type="submit">Confirmar recebimento</button>
+        <a class="button button--secondary" href="{{ voltar_url }}">Voltar</a>
+    </form>
+</section>
+{% endblock %}

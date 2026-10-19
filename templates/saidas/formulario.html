@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ titulo }} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Saídas</p>
+    <h1 id="titulo-pagina">{{ titulo }}</h1>
+    <p class="card-description">
+        Pendências não reduzem o saldo. Pagamentos são descontados da conta escolhida.
+    </p>
+
+    <form class="form-stack form-section" method="post" data-expense-form>
+        {% csrf_token %}
+        {{ form.chave_formulario }}
+        {% for field in form.visible_fields %}
+            <div class="form-field" data-field-name="{{ field.name }}">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        {% for error in form.non_field_errors %}
+            <p class="field-error" role="alert">{{ error }}</p>
+        {% endfor %}
+
+        <button class="button" type="submit">{{ texto_botao }}</button>
+        <a class="button button--secondary" href="{{ voltar_url }}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="{% static 'js/saidas.js' %}"></script>
+{% endblock %}

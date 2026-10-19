@@ -1,0 +1,46 @@
+DROP DUO — PREVIA DO EDITOR DE AVATAR v0.1
+
+COMO ABRIR NO WINDOWS
+1. Extraia o ZIP inteiro (nao abra o HTML dentro do ZIP).
+2. Coloque a pasta DropDuo-Avatar-Preview em docs/ do seu projeto, se desejar.
+3. Abra index.html com Chrome ou Edge, com duplo clique.
+Nao precisa instalar pacotes, iniciar Django ou usar internet.
+Alternativa: abra a pasta no terminal, execute python -m http.server 8080
+   e acesse http://localhost:8080
+
+O QUE FUNCIONA
+- Bases masculina e feminina.
+- Selecao visual de seis tons de pele.
+- Cabelo curto, comprido ou sem cabelo; seis cores.
+- Barba curta opcional (acompanha a cor do cabelo).
+- Camiseta com seis cores ou camisa azul.
+- Salvar a escolha neste navegador (nao salva no perfil Django).
+- Baixar a composicao em PNG transparente.
+
+ARQUIVOS
+index.html: pagina inicial.
+style.css: layout responsivo.
+app.js: renderizador Canvas, controles e estado local.
+assets/atlas-original.png: arte gerada original.
+assets/atlas.js: mesma imagem incorporada para funcionar por duplo clique.
+
+LIMITACOES IMPORTANTES
+Esta e uma prova de conceito utilizavel, nao um pacote final de sprites.
+As pecas estao num atlas; o renderer seleciona regioes e posiciona as camadas.
+Os encaixes sao aproximados e podem exigir retoques, especialmente cabelo
+comprido, barba e camisa sobre a base feminina. A limpeza de alpha e as
+mascaras de cor sao feitas em tempo de execucao; nao sao mascaras autoradas.
+As cores de pele e camiseta usam selecao aproximada por cor na imagem,
+podendo afetar pequenos detalhes. As sombras sao mantidas aproximadamente.
+Nao foram produzidas todas as opcoes planejadas; esta versao testa o fluxo.
+Antes de producao: exportar camadas individuais com coordenadas padronizadas,
+autorar mascaras explicitas, revisar em tamanhos pequenos e integrar validacao
+no servidor. Nao substitui os avatares atuais automaticamente.
+
+PARA O CODEX
+Veja INTEGRACAO-CODEX.txt. Preserve o aplicativo e os dados existentes.
+
+VERIFICACOES NESTA ENTREGA
+Sintaxe JavaScript verificada com node --check. Arquivos e ZIP conferidos.
+A validacao automatica no navegador nao foi executada: o download do
+Chromium falhou neste ambiente. Confira os encaixes ao abrir a previa.

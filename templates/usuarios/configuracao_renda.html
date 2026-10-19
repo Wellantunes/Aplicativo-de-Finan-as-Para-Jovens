@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Primeiro acesso | Drop Duo{% endblock %}
+{% block body_class %}onboarding-page{% endblock %}
+{% block content %}
+<section class="content-card onboarding-card" aria-labelledby="titulo-configuracao">
+    {% include "includes/dropduo_onboarding_brand.html" %}
+    <h1 class="onboarding-greeting">Olá, {{ user.first_name|default:user.username }}</h1>
+    <p class="card-description">Vamos preparar seu espaço financeiro.</p>
+    <div class="stepper" aria-label="Etapa 1 de 3">
+        <span class="stepper__step is-active"><span class="stepper__number">1</span></span><span class="stepper__step"><span class="stepper__number">2</span></span><span class="stepper__step"><span class="stepper__number">3</span></span><span class="stepper__label">1 de 3</span>
+    </div>
+    <h2 id="titulo-configuracao">Salário líquido mensal</h2>
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% for field in form %}<div class="form-field">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>{% endfor %}
+        <p class="field-help">Uma previsão. Não altera seu saldo.</p>
+        <button class="button" type="submit">Continuar</button>
+        <button class="button button--secondary" type="submit" name="pular" value="1">Configurar depois</button>
+    </form>
+</section>
+{% endblock %}

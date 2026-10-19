@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Pagar fatura | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">{{ fatura.cartao.nome }}</p>
+    <h1 id="titulo-pagina">Pagar fatura</h1>
+    <p class="card-description">
+        Fatura {{ fatura.referencia_formatada }} · R$ {{ fatura.valor_total|floatformat:2 }}
+    </p>
+    <p class="field-help">O pagamento não cria uma nova despesa. Vincule uma conta somente se quiser registrar a saída do saldo dela.</p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <button class="button" type="submit">Confirmar pagamento</button>
+        <a class="button button--secondary" href="{% url 'cartoes:detalhe_fatura' fatura.pk %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

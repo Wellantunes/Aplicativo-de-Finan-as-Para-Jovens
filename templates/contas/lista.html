@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Contas | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">{{ titulo_espaco }}</p>
+    <h1 id="titulo-pagina">Contas</h1>
+    <p class="card-description">
+        Contas em dinheiro e vales disponíveis no espaço atual.
+    </p>
+
+    <a class="button form-section" href="{% url 'contas:criar_conta' %}">Cadastrar conta ou vale</a>
+
+    <a class="button room-finance-link" href="{% url 'entradas:lista' %}">
+        Ver entradas e dízimos
+    </a>
+    <a class="button button--secondary room-finance-link" href="{% url 'cartoes:lista' %}">
+        Ver cartões e faturas
+    </a>
+
+    <section class="section-block" aria-labelledby="titulo-dinheiro">
+        <div class="section-heading">
+            <h2 id="titulo-dinheiro">Contas em dinheiro</h2>
+            <span>{{ contas_dinheiro|length }}</span>
+        </div>
+        <div class="record-list">
+            {% for conta in contas_dinheiro %}
+                <article class="record-card">
+                    <div>
+                        <h3>{{ conta.nome }}</h3>
+                        <p>{{ conta.titular.get_full_name|default:conta.titular.username }}</p>
+                    </div>
+                    <p class="record-value">R$ {{ conta.saldo_atual|floatformat:2 }}</p>
+                    <p class="record-note">
+                        Saldo inicial: R$ {{ conta.saldo_inicial|floatformat:2 }} em {{ conta.data_saldo_inicial|date:"d/m/Y" }}
+                    </p>
+                    <p class="record-note">{% if conta.sala_id %}Recurso da sala{% elif conta.sala_compartilhada_id %}Conta individual compartilhada · saldo real{% else %}Conta individual{% endif %}</p>
+                    {% if not conta.proprietario_usuario_id or conta.proprietario_usuario_id == user.id %}<a class="record-link" href="{% url 'contas:editar_conta' conta.pk %}">Editar</a>{% endif %}
+                </article>
+            {% empty %}
+                <p class="empty-state">Nenhuma conta em dinheiro cadastrada.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="section-block" aria-labelledby="titulo-vales">
+        <div class="section-heading">
+            <h2 id="titulo-vales">Vales-alimentação</h2>
+            <span>{{ vales_alimentacao|length }}</span>
+        </div>
+        <div class="record-list">
+            {% for conta in vales_alimentacao %}
+                <article class="record-card">
+                    <div>
+                        <h3>{{ conta.nome }}</h3>
+                        <p>{{ conta.titular.get_full_name|default:conta.titular.username }}</p>
+                    </div>
+                    <p class="record-value">R$ {{ conta.saldo_atual|floatformat:2 }}</p>
+                    <p class="record-note">
+                        Saldo inicial: R$ {{ conta.saldo_inicial|floatformat:2 }} em {{ conta.data_saldo_inicial|date:"d/m/Y" }}
+                    </p>
+                    <p class="record-note">{% if conta.sala_id %}Recurso da sala{% elif conta.sala_compartilhada_id %}Conta individual compartilhada · saldo real{% else %}Conta individual{% endif %}</p>
+                    {% if not conta.proprietario_usuario_id or conta.proprietario_usuario_id == user.id %}<a class="record-link" href="{% url 'contas:editar_conta' conta.pk %}">Editar</a>{% endif %}
+                </article>
+            {% empty %}
+                <p class="empty-state">Nenhum vale-alimentação cadastrado.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    {% if sala %}<a class="button button--secondary section-block" href="{% url 'salas:minha_sala' %}">Ver sala e participantes</a>{% endif %}
+</section>
+{% endblock %}

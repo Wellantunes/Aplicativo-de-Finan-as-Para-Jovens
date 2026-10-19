@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dízimo | Drop Duo{% endblock %}
+{% block body_class %}onboarding-page{% endblock %}
+{% block content %}
+<section class="content-card onboarding-card" aria-labelledby="titulo-configuracao">
+    {% include "includes/dropduo_onboarding_brand.html" %}
+    <div class="stepper" aria-label="Etapa 2 de 3">
+        <span class="stepper__step is-active"><span class="stepper__number">1</span></span><span class="stepper__step is-active"><span class="stepper__number">2</span></span><span class="stepper__step"><span class="stepper__number">3</span></span><span class="stepper__label">2 de 3</span>
+    </div>
+    <h1 id="titulo-configuracao">Configurar dízimo</h1>
+    <p class="card-description">A sugestão é 10%. O vale-alimentação só entra no cálculo se você escolher.</p>
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% for field in form %}<div class="form-field">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>{% endfor %}
+        <p class="field-help">Mudanças futuras não recalculam entradas antigas.</p>
+        <button class="button" type="submit">Continuar</button>
+        <button class="button button--secondary" type="submit" name="pular" value="1">Configurar depois</button>
+    </form>
+</section>
+{% endblock %}

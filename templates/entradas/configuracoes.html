@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Configurações de dízimo | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Padrões individuais</p>
+    <h1 id="titulo-pagina">Configurações de dízimo</h1>
+    <p class="card-description">
+        Cada pessoa pode ter um padrão diferente para cada tipo de entrada.
+        Alterações não recalculam lançamentos antigos.
+    </p>
+
+    <a class="button form-section" href="{% url 'entradas:criar_configuracao' %}">Nova configuração</a>
+
+    <div class="record-list section-block">
+        {% for configuracao in configuracoes %}
+            <article class="record-card">
+                <div>
+                    <h3>{{ configuracao.pessoa.get_full_name|default:configuracao.pessoa.username }}</h3>
+                    <p>{{ configuracao.get_tipo_entrada_display }}</p>
+                </div>
+                {% if configuracao.calcular_dizimo %}
+                    <p class="record-note">
+                        {% if configuracao.forma_calculo == 'percentual' %}
+                            {{ configuracao.percentual_dizimo|floatformat:2 }}% sobre a entrada
+                        {% else %}
+                            R$ {{ configuracao.valor_dizimo_manual|floatformat:2 }} por entrada
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p class="record-note">Não calcular dízimo</p>
+                {% endif %}
+                <a class="record-link" href="{% url 'entradas:editar_configuracao' configuracao.pk %}">Editar</a>
+            </article>
+        {% empty %}
+            <p class="empty-state">Nenhuma configuração cadastrada.</p>
+        {% endfor %}
+    </div>
+
+    <a class="button button--secondary section-block" href="{% url 'entradas:lista' %}">Voltar</a>
+</section>
+{% endblock %}

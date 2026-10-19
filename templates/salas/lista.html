@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Salas | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-salas">
+    <p class="eyebrow">Compartilhamento opcional</p>
+    <h1 id="titulo-salas">Salas</h1>
+
+    {% if sala %}
+        <article class="record-card room-card">
+            <div>
+                <div class="room-title-with-symbol">
+                    {% include "includes/dropduo_room_symbol.html" with sala=sala %}
+                    <h2>{{ sala.nome }}</h2>
+                </div>
+                <p>{{ sala.get_tipo_display }} · {{ sala.membros.count }}/2 participantes</p>
+            </div>
+            <ul class="member-list" aria-label="Participantes">
+                {% for membro in sala.membros.all %}
+                    <li class="member-item">
+                        {% include "includes/dropduo_avatar.html" with usuario=membro.usuario classe="member-avatar" %}
+                        <strong>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</strong>
+                    </li>
+                {% endfor %}
+            </ul>
+            <form method="post" action="{% url 'salas:entrar_espaco' sala.pk %}">
+                {% csrf_token %}
+                <button class="button" type="submit">Entrar na sala</button>
+            </form>
+            <a class="record-link" href="{% url 'salas:detalhe' sala.pk %}">Ver participantes e convite</a>
+        </article>
+    {% else %}
+        <p class="card-description">Seu espaço individual já está pronto. Crie uma sala somente se quiser compartilhar parte das finanças.</p>
+        <div class="action-list">
+            <a class="button" href="{% url 'salas:criar' %}">Criar sala</a>
+            <a class="button button--secondary" href="{% url 'salas:entrar' %}">Entrar com código</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

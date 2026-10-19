@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static financeiro %}
+
+{% block title %}Entradas{% if controla_dizimos %} e dízimos{% endif %} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card ledger-list-page" aria-labelledby="titulo-pagina">
+    <header class="ledger-list-header">
+        <div>
+            <div class="ledger-list-title">
+                <h1 id="titulo-pagina">Entradas{% if controla_dizimos %} e dízimos{% endif %}</h1>
+                <span class="workspace-badge">{{ contexto_espaco }}</span>
+            </div>
+            <p class="ledger-list-period">{{ data_mes|date:"F \d\e Y"|capfirst }}</p>
+        </div>
+        <a class="button ledger-list-add" href="{% url 'core:lancamentos' %}?tipo=entrada{% if mes_selecionado %}&amp;mes={{ mes_selecionado }}{% endif %}">Registrar entrada</a>
+    </header>
+
+    <p class="card-description">
+        Entradas recebidas e a receber pertencem ao mês da data prevista.
+    </p>
+
+    <div class="entry-composition" aria-label="Composição das entradas do mês">
+        <div>
+            <span>Dinheiro</span>
+            <strong class="financial-value">{{ total_entradas_dinheiro|moeda_br }}</strong>
+        </div>
+        <div>
+            <span>Vale-alimentação/refeição</span>
+            <strong class="financial-value">{{ total_entradas_vale|moeda_br }}</strong>
+        </div>
+    </div>
+
+    {% if controla_dizimos %}
+        <a class="button button--secondary ledger-settings-link" href="{% url 'entradas:configuracoes' %}">Configurar dízimos</a>
+    {% endif %}
+
+    <section class="section-block" id="dizimos" aria-labelledby="titulo-entradas">
+        <div class="section-heading">
+            <h2 id="titulo-entradas">Lançamentos</h2>
+            <span>{{ entradas.paginator.count }}</span>
+        </div>
+
+        <div class="record-list financial-record-list">
+            {% for entrada in entradas %}
+                <article class="financial-record-card">
+                    <header class="financial-record-card__header">
+                        <div class="financial-record-card__identity">
+                            <img class="dropduo-png financial-record-card__icon" src="{% static entrada.caminho_simbolo %}" alt="">
+                            <div>
+                                <h3>{{ entrada.descricao }}</h3>
+                                <p>{{ entrada.get_tipo_display }}</p>
+                            </div>
+                        </div>
+                        <strong class="financial-record-card__value financial-value">{{ entrada.valor|moeda_br }}</strong>
+                    </header>
+
+                    <div class="financial-record-card__meta">
+                        <time datetime="{{ entrada.data_referencia|date:'Y-m-d' }}">Referência: {{ entrada.data_referencia|date:"d/m/Y" }}</time>
+                        <span class="status-badge status-badge--{{ entrada.situacao }}">{{ entrada.get_situacao_display }}</span>
+                    </div>
+
+                    {% if sala %}<p class="financial-record-card__person">Responsável: {{ entrada.pessoa.get_full_name|default:entrada.pessoa.username }}</p>{% endif %}
+                    {% if entrada.situacao == 'recebida' and entrada.data and entrada.data != entrada.data_referencia %}<p class="record-note">Recebida em {{ entrada.data|date:"d/m/Y" }}</p>{% endif %}
+                    {% if entrada.observacao %}<p class="record-note">{{ entrada.observacao }}</p>{% endif %}
+
+                    {% if controla_dizimos and entrada.calcular_dizimo %}
+                        <div class="tithe-summary financial-record-card__tithe">
+                            <span>Previsto <strong>{{ entrada.dizimo_previsto|moeda_br }}</strong></span>
+                            <span>Devolvido <strong>{{ entrada.valor_devolvido|moeda_br }}</strong></span>
+                            <span>Restante <strong>{{ entrada.dizimo_restante|moeda_br }}</strong></span>
+                        </div>
+                    {% endif %}
+
+                    {% if not entrada.proprietario_usuario_id or entrada.proprietario_usuario_id == user.id %}
+                        <footer class="financial-record-card__actions">
+                            {% if entrada.situacao == 'a_receber' %}<a class="record-action record-action--confirm" href="{% url 'entradas:receber' entrada.pk %}?{{ parametros_navegacao }}">Confirmar recebimento</a>{% endif %}
+                            {% if controla_dizimos and entrada.dizimo_restante > 0 %}<a class="record-action" href="{% url 'entradas:devolver' entrada.pk %}?{{ parametros_navegacao }}">Registrar devolução</a>{% endif %}
+                            {% if not entrada.devolucoes.exists %}
+                                <a class="record-action record-action--edit" href="{% url 'entradas:editar' entrada.pk %}?{{ parametros_navegacao }}">
+                                    <svg aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#edit"></use></svg>
+                                    <span>Editar</span>
+                                </a>
+                                <a class="record-action record-action--delete" href="{% url 'entradas:excluir' entrada.pk %}?{{ parametros_navegacao }}">
+                                    <svg aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#trash"></use></svg>
+                                    <span>Excluir</span>
+                                </a>
+                            {% else %}
+                                <span class="record-note">Edição bloqueada após devolução</span>
+                            {% endif %}
+                        </footer>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <p class="empty-state">Nenhuma entrada cadastrada neste mês.</p>
+            {% endfor %}
+        </div>
+        {% include "includes/paginacao.html" with pagina=entradas %}
+    </section>
+
+    <a class="button button--secondary section-block" href="{% url 'saidas:lista' %}?mes={{ mes_selecionado }}">Ver compromissos</a>
+</section>
+{% endblock %}

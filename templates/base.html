@@ -1,0 +1,75 @@
+{% load static %}
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#2855D9">
+    <meta name="description" content="Drop Duo: finanças individuais e compartilhadas de um jeito simples.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>{% block title %}Drop Duo{% endblock %}</title>
+    <link rel="manifest" href="{% url 'core:manifesto' %}">
+    <link rel="icon" href="{% static 'images/app-icon.svg' %}" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="{% static 'images/app-icon.svg' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20261019-1">
+    {% block extra_styles %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <a class="skip-link" href="#conteudo-principal">Ir para o conteúdo</a>
+    <div class="app-shell">
+        <header class="site-header">
+            <a class="brand" href="{% url 'core:home' %}" aria-label="Drop Duo — página inicial">
+                <img class="brand__chest dropduo-png" src="{% static 'dropduo/icons/bau.png' %}" alt="">
+                <span class="brand__name"><span>Drop</span><span>Duo</span></span>
+            </a>
+            {% if user.is_authenticated %}
+                <div class="header-actions">
+                    <a class="profile-link" href="{% url 'usuarios:avatar' %}?next={{ request.get_full_path|urlencode }}" aria-label="Editar meu avatar">
+                        {% include "includes/dropduo_avatar.html" with usuario=user classe="header-avatar" %}
+                        <span class="sr-only">Perfil</span>
+                    </a>
+                    <a class="icon-button" href="{% url 'usuarios:perfil' %}" aria-label="Abrir configurações">
+                        {% include "includes/dropduo_icon.html" with caminho="dropduo/icons/engrenagem.png" classe="pixel-icon" decorativo=True %}
+                    </a>
+                </div>
+            {% endif %}
+        </header>
+        {% if user.is_authenticated and user.avatar_concluido and user.configuracao_inicial_concluida and sala_ativa %}
+            <div class="workspace-indicator"><span>Sala compartilhada · {{ sala_ativa.nome }}</span><a href="{% url 'salas:voltar_individual' %}">Voltar ao meu espaço</a></div>
+        {% endif %}
+        {% if messages %}
+            <div class="messages" aria-label="Notificações">
+                {% for message in messages %}
+                    <div class="message message--{{ message.tags|default:'info' }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" {% if "login-success" in message.tags %}data-dismissible-message data-auto-dismiss-message{% endif %}>
+                        <span>{{ message }}</span>
+                        {% if "login-success" in message.tags %}<button type="button" aria-label="Dispensar confirmação de login" data-dismiss-message>×</button>{% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="connection-message" data-connection-message role="status" hidden>Você está sem conexão. Aguarde a internet voltar antes de enviar dados.</div>
+        <main class="main-content{% if user.is_authenticated and user.avatar_concluido and user.configuracao_inicial_concluida %} main-content--with-nav{% endif %}" id="conteudo-principal">{% block content %}{% endblock %}</main>
+        {% if user.is_authenticated and user.avatar_concluido and user.configuracao_inicial_concluida %}
+            <details class="quick-add" data-quick-add>
+                <summary aria-label="Abrir opções para adicionar lançamento"><svg class="pixel-icon" aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#plus"></use></svg><span class="sr-only">Adicionar</span></summary>
+                <div class="quick-add__menu">
+                    <a href="{% url 'core:lancamentos' %}?tipo=saida{% if request.GET.mes %}&amp;mes={{ request.GET.mes|urlencode }}{% endif %}">Saída</a>
+                    <a href="{% url 'core:lancamentos' %}?tipo=entrada{% if request.GET.mes %}&amp;mes={{ request.GET.mes|urlencode }}{% endif %}">Entrada</a>
+                    <a href="{% url 'core:lancamentos' %}?tipo=saida{% if request.GET.mes %}&amp;mes={{ request.GET.mes|urlencode }}{% endif %}">Compra no crédito</a>
+                </div>
+            </details>
+            <nav class="bottom-navigation" aria-label="Navegação principal">
+                <a href="{% url 'dashboard:mensal' %}" {% if request.resolver_match.namespace == 'dashboard' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/casa.png" classe="pixel-icon" decorativo=True %}<span>Início</span></a>
+                <a href="{% url 'core:lancamentos' %}" {% if request.resolver_match.url_name == 'lancamentos' or request.resolver_match.url_name == 'registrar_vale' or request.resolver_match.namespace == 'entradas' or request.resolver_match.namespace == 'saidas' or request.resolver_match.url_name == 'criar_compra_cartao' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/lista-lancamentos.png" classe="pixel-icon" decorativo=True %}<span>Lançamentos</span></a>
+                <span class="bottom-navigation__spacer" aria-hidden="true"></span>
+                <a href="{% url 'cartoes:lista' %}" {% if request.resolver_match.namespace == 'cartoes' and request.resolver_match.url_name != 'criar_compra_cartao' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/carteira.png" classe="pixel-icon" decorativo=True %}<span>Cartões</span></a>
+                <a href="{% url 'salas:minha_sala' %}" {% if request.resolver_match.namespace == 'salas' %}aria-current="page"{% endif %}><svg class="pixel-icon" aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#people"></use></svg><span>Sala</span></a>
+            </nav>
+        {% endif %}
+    </div>
+    <script src="{% static 'js/avatar-v2-renderer.js' %}?v=20261018-1"></script>
+    <script src="{% static 'js/app.js' %}?v=20261018-1"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

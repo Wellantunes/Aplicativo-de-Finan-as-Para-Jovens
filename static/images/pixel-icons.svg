@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<symbol id="home" viewBox="0 0 24 24"><path fill="#071D49" d="M10 2h4v2h2v2h2v2h2v2h-2v10h-5v-6h-2v6H6V10H4V8h2V6h2V4h2z"/><path fill="#E9B949" d="M8 10h8v8h-2v-6h-4v6H8z"/></symbol>
+<symbol id="gear" viewBox="0 0 24 24"><path fill="#071D49" d="M9 2h6v3h3V3h2l1 2-2 2v3h3v5h-3v3l2 2-1 2h-2l-2-2h-3v3H9v-3H6l-2 2H2l-1-2 2-2v-3H0v-5h3V7L1 5l1-2h2l2 2h3z"/><path fill="#2855D9" d="M7 7h10v10H7z"/><path fill="#FFF4DC" d="M10 10h4v4h-4z"/></symbol>
+<symbol id="card" viewBox="0 0 24 24"><path fill="#071D49" d="M2 4h20v16H2z"/><path fill="#2855D9" d="M4 6h16v3H4zm0 6h16v6H4z"/><path fill="#FFF4DC" d="M6 14h5v2H6z"/></symbol>
+<symbol id="people" viewBox="0 0 24 24"><path fill="#071D49" d="M5 3h5v2h2v5h-2v2H5v-2H3V5h2zm11 2h4v2h2v4h-2v2h-4v-2h-2V7h2zM3 14h9v2h2v6H1v-6h2zm13 1h5v2h2v5h-7z"/><path fill="#EF6A50" d="M5 16h5v4H5zm12 1h3v3h-3z"/></symbol>
+<symbol id="list" viewBox="0 0 24 24"><path fill="#071D49" d="M3 3h4v4H3zm7 0h11v4H10zM3 10h4v4H3zm7 0h11v4H10zM3 17h4v4H3zm7 0h11v4H10z"/><path fill="#2855D9" d="M4 4h2v2H4zm0 7h2v2H4zm0 7h2v2H4z"/></symbol>
+<symbol id="plus" viewBox="0 0 24 24"><path fill="currentColor" d="M10 2h4v8h8v4h-8v8h-4v-8H2v-4h8z"/></symbol>
+<symbol id="edit" viewBox="0 0 24 24"><path fill="#071D49" d="M3 16h3v-3h3v-3h3V7h3V4h3V2h3v3h-2v3h-3v3h-3v3H9v3H6v2h12v3H3z"/><path fill="#2855D9" d="M7 14h3v-3h3V8h3V6h2v2h-2v3h-3v3h-3v2H7z"/><path fill="#E9B949" d="M18 3h2v2h-2z"/></symbol>
+<symbol id="trash" viewBox="0 0 24 24"><path fill="#071D49" d="M7 2h10v3h4v3h-2v14H5V8H3V5h4zm2 3h6V4H9zm-1 4v10h8V9z"/><path fill="#EF6A50" d="M9 10h2v7H9zm4 0h2v7h-2z"/></symbol>
+<symbol id="calendar" viewBox="0 0 24 24"><path fill="#071D49" d="M3 4h3V2h3v2h6V2h3v2h3v18H3z"/><path fill="#FFF4DC" d="M6 9h12v10H6z"/><path fill="#2855D9" d="M3 6h18v3H3zm5 5h3v3H8zm5 0h3v3h-3z"/></symbol>
+<symbol id="coins" viewBox="0 0 24 24"><path fill="#071D49" d="M3 4h12v3h3v4h3v7h-3v3H6v-3H3z"/><path fill="#E9B949" d="M5 6h8v3H5zm3 5h10v3H8zm-3 4h13v3H5z"/><path fill="#FFF07A" d="M7 6h4v2H7zm3 6h5v2h-5z"/></symbol>
+<symbol id="arrow-up" viewBox="0 0 24 24"><path fill="#071D49" d="M9 2h6v3h3v3h3l-9 9-9-9h3V5h3zM9 15h6v7H9z"/><path fill="#43A85B" d="M10 5h4v4h3l-5 5-5-5h3zm1 11h2v4h-2z"/></symbol>
+<symbol id="heart" viewBox="0 0 24 24"><path fill="#071D49" d="M3 4h6v2h6V4h6v2h2v8h-2v2h-2v2h-2v2h-2v2H9v-2H7v-2H5v-2H3v-2H1V6h2z"/><path fill="#EF6A50" d="M4 7h5v2h6V7h5v6h-2v2h-2v2h-2v2h-4v-2H8v-2H6v-2H4z"/></symbol>
+<symbol id="cutlery" viewBox="0 0 24 24"><path fill="#071D49" d="M3 2h3v7h2V2h3v9H8v11H5V11H3zm13 0h5v20h-3v-8h-4V6z"/><path fill="#2855D9" d="M17 4h2v8h-3V7z"/></symbol>
+</svg>

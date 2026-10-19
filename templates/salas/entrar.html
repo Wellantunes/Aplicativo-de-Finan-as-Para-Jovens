@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Entrar em uma sala | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Espaço compartilhado</p>
+    <h1 id="titulo-pagina">Entrar com código</h1>
+    <p class="card-description">
+        Peça a outro participante o código exibido na sala. Ele vale por 24 horas e
+        só pode ser usado uma vez.
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+
+        <div class="form-field">
+            {{ form.codigo.label_tag }}
+            {{ form.codigo }}
+            {% for error in form.codigo.errors %}
+                <p class="field-error" role="alert">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <button class="button" type="submit">Continuar</button>
+        <a class="button button--secondary" href="{% url 'core:home' %}">Voltar</a>
+    </form>
+</section>
+{% endblock %}

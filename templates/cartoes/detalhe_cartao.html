@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ cartao.nome }} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <header class="card-detail-heading">
+        <img class="dropduo-png" src="{% static cartao.caminho_simbolo %}" alt="">
+        <div>
+            <p class="eyebrow">Cartão{% if cartao.arquivado %} arquivado{% endif %}</p>
+            <h1 id="titulo-pagina">{{ cartao.nome }}</h1>
+        </div>
+    </header>
+    <p class="record-note">{{ cartao.texto_fechamento }} {{ cartao.texto_vencimento }}</p>
+
+    <div class="action-list action-list--two-columns form-section">
+        {% if not cartao.arquivado %}
+            <a class="button" href="{% url 'cartoes:criar_compra_cartao' cartao.pk %}">Registrar compra</a>
+        {% endif %}
+        {% if pode_administrar %}
+            <a class="button button--secondary" href="{% url 'contas:editar_cartao' cartao.pk %}">Editar cartão</a>
+        {% endif %}
+    </div>
+    {% if pode_administrar %}
+        <form class="form-section" method="post" action="{% url 'cartoes:alternar_arquivo_cartao' cartao.pk %}">
+            {% csrf_token %}
+            <button class="button button--secondary" type="submit">{% if cartao.arquivado %}Restaurar cartão{% else %}Arquivar cartão{% endif %}</button>
+        </form>
+    {% endif %}
+
+    <section class="section-block" aria-labelledby="titulo-faturas">
+        <div class="section-heading"><h2 id="titulo-faturas">Faturas</h2><span>{{ faturas.count }}</span></div>
+        <div class="record-list">
+            {% for fatura in faturas %}
+                <article class="record-card">
+                    <div class="record-heading">
+                        <div><h3>{{ fatura.referencia_formatada }}</h3><p>Vencimento em {{ fatura.data_vencimento|date:"d/m/Y" }}</p></div>
+                        <p class="record-value">R$ {{ fatura.valor_total|floatformat:2 }}</p>
+                    </div>
+                    <p class="record-note">Fecha em {{ fatura.data_fechamento|date:"d/m/Y" }} · {% if fatura.esta_paga %}Paga{% else %}Em aberto{% endif %}</p>
+                    <a class="record-link" href="{% url 'cartoes:detalhe_fatura' fatura.pk %}">Ver fatura</a>
+                </article>
+            {% empty %}<p class="empty-state">Nenhuma fatura gerada.</p>{% endfor %}
+        </div>
+    </section>
+
+    <section class="section-block" aria-labelledby="titulo-compras">
+        <div class="section-heading"><h2 id="titulo-compras">Compras</h2><span>{{ compras.count }}</span></div>
+        <div class="record-list">
+            {% for compra in compras %}
+                <article class="record-card">
+                    <div class="record-heading">
+                        <div><h3>{{ compra.descricao }}</h3><p>{{ compra.data_compra|date:"d/m/Y" }} · {{ compra.responsavel.get_full_name|default:compra.responsavel.username }}</p></div>
+                        <p class="record-value">R$ {{ compra.valor_total|floatformat:2 }}</p>
+                    </div>
+                    <p class="record-note">{{ compra.quantidade_parcelas }} parcela{{ compra.quantidade_parcelas|pluralize }} · fatura{% if compra.quantidade_parcelas != 1 %}s{% endif %} {% for parcela in compra.parcelas.all %}{{ parcela.fatura.referencia_formatada }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                    {% if not compra.proprietario_usuario_id or compra.proprietario_usuario_id == user.id %}<div class="record-actions"><a href="{% url 'cartoes:editar_compra' compra.pk %}">Editar</a><a class="danger-link" href="{% url 'cartoes:excluir_compra' compra.pk %}">Excluir</a></div>{% endif %}
+                </article>
+            {% empty %}<p class="empty-state">Nenhuma compra registrada neste cartão.</p>{% endfor %}
+        </div>
+    </section>
+
+    <a class="button button--secondary section-block" href="{% url 'cartoes:lista' %}">Voltar para cartões</a>
+</section>
+{% endblock %}

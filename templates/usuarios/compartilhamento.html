@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Compartilhamento | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-compartilhamento">
+    <p class="eyebrow">{{ sala.nome }}</p>
+    <h1 id="titulo-compartilhamento">Escolher o que compartilhar</h1>
+    <p class="card-description">
+        Os registros continuam sendo seus. O app apenas cria uma referência para que também apareçam na sala, sem copiar valores, parcelas ou saldos.
+    </p>
+
+    <div class="notice-box">
+        <strong>Antes de continuar</strong>
+        <p>O saldo real de uma conta e o total real de uma fatura podem refletir movimentos privados. Esses totais serão identificados, mas os detalhes privados não serão mostrados à outra pessoa da sala.</p>
+    </div>
+
+    <form method="post" class="app-form" data-protect-submit>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-field">
+                <span class="field-label">{{ field.label }}</span>
+                {{ field }}
+                {% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}
+                {% for erro in field.errors %}<p class="field-error">{{ erro }}</p>{% endfor %}
+            </div>
+        {% endfor %}
+
+        {% if previa %}
+            <section class="summary-box" aria-labelledby="titulo-previa">
+                <h2 id="titulo-previa">Prévia do alcance</h2>
+                <p>{{ previa.contas }} conta(s), {{ previa.cartoes }} cartão(ões), {{ previa.entradas }} entrada(s), {{ previa.saidas }} saída(s) e {{ previa.compras }} compra(s).</p>
+                <p class="field-help">Nada foi compartilhado ainda. Confirme para aplicar.</p>
+            </section>
+            <button class="button" type="submit" name="acao" value="confirmar">Confirmar compartilhamento</button>
+        {% else %}
+            <button class="button" type="submit" name="acao" value="visualizar">Ver prévia</button>
+        {% endif %}
+    </form>
+
+    <p class="field-help">Este fluxo adiciona compartilhamentos. Para remover uma conta ou cartão sem dependências, edite o cadastro correspondente.</p>
+    <a class="button button--secondary form-section" href="{% url 'usuarios:perfil' %}">Voltar ao perfil</a>
+</section>
+{% endblock %}

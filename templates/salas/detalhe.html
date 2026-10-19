@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ sala.nome }} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-sala">
+    <p class="eyebrow">Espaço compartilhado</p>
+    <div class="room-title-with-symbol">
+        {% include "includes/dropduo_room_symbol.html" with sala=sala %}
+        <h1 id="titulo-sala">{{ sala.nome }}</h1>
+    </div>
+    <p class="card-description">{{ sala.get_tipo_display }} · {{ sala.get_simbolo_display }}</p>
+
+    <a class="record-link" href="{% url 'salas:configurar' sala.pk %}">Editar configurações da sala</a>
+
+    <div class="summary-box">
+        <span class="summary-box__label">Orçamento mensal previsto</span>
+        <strong>R$ {{ sala.orcamento_mensal|floatformat:2 }}</strong>
+        <small>Esta previsão não altera nenhum saldo.</small>
+    </div>
+
+    <form method="post" action="{% url 'salas:entrar_espaco' sala.pk %}" class="form-section">
+        {% csrf_token %}
+        <button class="button" type="submit">Entrar no espaço compartilhado</button>
+    </form>
+
+    <div class="action-list action-list--two-columns">
+        <a class="button button--secondary" href="{% url 'contas:lista' %}">
+            Contas e cartões
+        </a>
+        <a class="button button--secondary" href="{% url 'entradas:lista' %}">
+            Entradas e dízimos
+        </a>
+    </div>
+
+    <section class="section-block" aria-labelledby="titulo-participantes">
+        <div class="section-heading">
+            <h2 id="titulo-participantes">Participantes</h2>
+            <span>{{ sala.membros.count }}/2</span>
+        </div>
+
+        <ul class="member-list">
+            {% for membro in sala.membros.all %}
+                <li class="member-item">
+                    {% include "includes/dropduo_avatar.html" with usuario=membro.usuario classe="member-avatar" %}
+                    <span>
+                        <strong>{{ membro.usuario.get_full_name|default:membro.usuario.username }}</strong>
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    {% if sala.membros.count < 2 %}
+        <section class="section-block invite-box" aria-labelledby="titulo-convite">
+            <h2 id="titulo-convite">Convide outra pessoa</h2>
+            {% if convite_ativo %}
+                <p class="invite-code" aria-label="Código do convite">{{ convite_ativo.codigo }}</p>
+                <p class="field-help">
+                    Uso único. Válido até {{ convite_ativo.expira_em|date:"d/m/Y \à\s H:i" }}.
+                </p>
+            {% else %}
+                <p class="card-description">O convite anterior expirou. Gere um novo código.</p>
+                <form method="post" action="{% url 'salas:gerar_convite' sala.pk %}">
+                    {% csrf_token %}
+                    <button class="button" type="submit">Gerar novo código</button>
+                </form>
+            {% endif %}
+        </section>
+    {% else %}
+        <p class="status-pill">
+            <span class="status-pill__dot" aria-hidden="true"></span>
+            Sala completa
+        </p>
+    {% endif %}
+
+    <a class="button button--secondary section-block" href="{% url 'salas:minha_sala' %}">Voltar para Salas</a>
+</section>
+{% endblock %}

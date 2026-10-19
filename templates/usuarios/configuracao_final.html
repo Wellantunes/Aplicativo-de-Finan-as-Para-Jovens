@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Ponto de partida | Drop Duo{% endblock %}
+{% block body_class %}onboarding-page{% endblock %}
+{% block content %}
+<section class="content-card onboarding-card" aria-labelledby="titulo-configuracao">
+    {% include "includes/dropduo_onboarding_brand.html" %}
+    <div class="stepper" aria-label="Etapa 3 de 3">
+        <span class="stepper__step is-active"><span class="stepper__number">1</span></span><span class="stepper__step is-active"><span class="stepper__number">2</span></span><span class="stepper__step is-active"><span class="stepper__number">3</span></span><span class="stepper__label">3 de 3</span>
+    </div>
+    <h1 id="titulo-configuracao">Seu ponto de partida</h1>
+    <p class="card-description">Você pode começar sem cartão, despesas ou sala. Cartão de crédito não representa dinheiro disponível.</p>
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}<fieldset class="choice-group"><legend>{{ form.proximo_passo.label }}</legend>{{ form.proximo_passo }}{% for error in form.proximo_passo.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</fieldset><button class="button" type="submit">Concluir configuração</button>
+    </form>
+</section>
+{% endblock %}

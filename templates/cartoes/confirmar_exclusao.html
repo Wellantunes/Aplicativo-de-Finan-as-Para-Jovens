@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Excluir compra | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Confirmação</p>
+    <h1 id="titulo-pagina">Excluir compra?</h1>
+    <p class="card-description">
+        A compra <strong>{{ compra.descricao }}</strong> e suas
+        {{ compra.quantidade_parcelas }} parcela{{ compra.quantidade_parcelas|pluralize }}
+        serão removidas das faturas.
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        <button class="button button--danger" type="submit">Excluir compra</button>
+        <a class="button button--secondary" href="{% url 'cartoes:lista' %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

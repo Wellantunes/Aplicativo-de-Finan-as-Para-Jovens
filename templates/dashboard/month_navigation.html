@@ -1,0 +1,13 @@
+{% load static %}
+<div class="month-bar">
+    <nav class="month-navigation" aria-label="Navegação entre meses">
+        <a class="month-navigation__arrow" href="{{ mes_anterior_url }}" aria-label="Mês anterior">‹</a>
+        <label class="month-navigation__picker" for="{{ filtro.mes.id_for_label }}" title="Selecionar outro mês">
+            <span>{{ data_mes|date:"F \d\e Y"|capfirst }}</span>
+            <span class="sr-only">Selecionar outro mês</span>
+            {{ filtro.mes }}
+        </label>
+        <a class="month-navigation__arrow" href="{{ mes_seguinte_url }}" aria-label="Próximo mês">›</a>
+    </nav>
+    <img class="month-bar__chest" src="{% static 'dropduo/icons/bau.png' %}" alt="" aria-hidden="true">
+</div>

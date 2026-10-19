@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Organizar atalhos | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-organizar">
+    <p class="eyebrow">Lançamentos</p><h1 id="titulo-organizar">Organizar atalhos</h1>
+    <p class="card-description">Edite, ordene ou arquive. O histórico não é alterado.</p>
+    <div class="shortcut-management-list">
+        {% for atalho in atalhos %}
+            <article class="shortcut-management-item{% if atalho.arquivado %} is-archived{% endif %}">
+                <img class="dropduo-png" src="{% static atalho.caminho_simbolo %}" alt="">
+                <div><strong>{{ atalho.nome }}</strong><small>{{ atalho.get_tipo_display }} · {{ atalho.categoria }}</small></div>
+                <div class="shortcut-management-actions">
+                    {% if not atalho.arquivado %}
+                        <form method="post" action="{% url 'core:mover_atalho' atalho.pk %}">{% csrf_token %}<button type="submit" name="direcao" value="subir" aria-label="Mover {{ atalho.nome }} para cima">↑</button><button type="submit" name="direcao" value="descer" aria-label="Mover {{ atalho.nome }} para baixo">↓</button></form>
+                        <a href="{% url 'core:editar_atalho' atalho.pk %}">Editar</a>
+                    {% endif %}
+                    <form method="post" action="{% url 'core:alternar_arquivo_atalho' atalho.pk %}">{% csrf_token %}<button type="submit">{% if atalho.arquivado %}Restaurar{% else %}Arquivar{% endif %}</button></form>
+                </div>
+            </article>
+        {% empty %}<p class="empty-state">Nenhum atalho cadastrado.</p>{% endfor %}
+    </div>
+    <a class="button section-block" href="{% url 'core:criar_atalho' %}">Novo atalho</a>
+    <a class="button button--secondary section-block" href="{% url 'core:lancamentos' %}">Voltar</a>
+</section>
+{% endblock %}

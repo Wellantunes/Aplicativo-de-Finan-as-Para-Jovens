@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registrar compra | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card purchase-page" aria-labelledby="titulo-pagina">
+    <header class="card-detail-heading">
+        <img class="dropduo-png" src="{% static cartao.caminho_simbolo %}" alt="">
+        <div><p class="eyebrow">Compra no crédito</p><h1 id="titulo-pagina">{{ cartao.nome }}</h1></div>
+    </header>
+
+    <form class="form-stack form-section" method="post" data-purchase-form data-preview-url="{% url 'cartoes:previa_fatura' cartao.pk %}">
+        {% csrf_token %}
+        {{ form.chave_formulario }}
+        {% for error in form.non_field_errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+
+        {% for field in form.visible_fields %}
+            {% if field.name == 'alterar_fatura' %}
+                <details class="invoice-choice" {% if field.value or form.fatura_destino.errors %}open{% endif %}>
+                    <summary>Alterar fatura</summary>
+                    <div class="form-field checkbox-field">{{ field }} {{ field.label_tag }}{% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}</div>
+            {% elif field.name == 'fatura_destino' %}
+                    <div class="form-field" data-invoice-choice>{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+                </details>
+            {% else %}
+                <div class="form-field">{{ field.label_tag }}{{ field }}{% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+            {% endif %}
+        {% endfor %}
+
+        <div class="invoice-preview" aria-live="polite">
+            <strong>Fatura de destino</strong>
+            <span>Fecha em <b data-preview-close>{{ fechamento_previa|date:"d/m/Y" }}</b></span>
+            <span>Vence em <b data-preview-due>{{ vencimento_previa|date:"d/m/Y" }}</b></span>
+        </div>
+        <button class="button" type="submit">Registrar compra</button>
+        <a class="button button--secondary" href="{% url 'core:lancamentos' %}?tipo=saida">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

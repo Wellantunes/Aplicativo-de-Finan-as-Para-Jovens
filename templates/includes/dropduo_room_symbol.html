@@ -1,0 +1,6 @@
+{% load static %}
+{% if sala.simbolo == "bau" %}
+    <img class="dropduo-room-symbol dropduo-png {{ classe|default:'' }}" src="{% static 'dropduo/icons/bau.png' %}" alt="" aria-hidden="true">
+{% else %}
+    <img class="dropduo-room-symbol dropduo-png {{ classe|default:'' }}" src="{% static 'dropduo/scenes/coracao-pequeno.png' %}" alt="" aria-hidden="true">
+{% endif %}

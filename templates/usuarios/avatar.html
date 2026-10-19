@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if user.avatar_concluido %}Editar{% else %}Criar{% endif %} avatar | Drop Duo{% endblock %}
+{% block body_class %}onboarding-page avatar-page{% endblock %}
+{% block extra_styles %}<link rel="stylesheet" href="{% static 'css/avatar-editor-v2.css' %}?v=20261019-1">{% endblock %}
+
+{% block content %}
+<section class="content-card avatar-v2-editor" aria-labelledby="titulo-avatar">
+    {% include "includes/dropduo_onboarding_brand.html" %}
+    <header class="avatar-v2-editor__heading">
+        <h1 id="titulo-avatar">{% if user.avatar_concluido %}Edite seu avatar{% else %}Crie seu avatar{% endif %}</h1>
+        <p class="card-description">Escolha como você vai aparecer no seu espaço e nas salas.</p>
+    </header>
+
+    <div class="avatar-v2-stage" id="avatar-preview">
+        {% include "includes/dropduo_avatar_v2_canvas.html" with editor_preview=True canvas_classe="avatar-v2-preview" avatar_base=form.avatar_v2_base.value avatar_pele=form.avatar_v2_pele.value avatar_cabelo=form.avatar_v2_cabelo.value avatar_cor_cabelo=form.avatar_v2_cor_cabelo.value avatar_barba=form.avatar_v2_barba.value avatar_roupa=form.avatar_v2_roupa.value avatar_cor_roupa=form.avatar_v2_cor_roupa.value rotulo_avatar="Prévia do seu avatar" %}
+        <p class="avatar-v2-stage__fallback">A prévia será exibida aqui. Se a imagem falhar, você ainda pode cancelar ou salvar suas escolhas.</p>
+    </div>
+    <p class="avatar-v2-status" data-avatar-status role="status">Carregando as artes…</p>
+
+    <form
+        class="avatar-v2-form"
+        method="post"
+        data-avatar-form
+        data-avatar-form-bound="{{ form.is_bound|yesno:'true,false' }}"
+        data-avatar-has-saved="{{ avatar_salvo.existe|yesno:'true,false' }}"
+        data-saved-base="{{ avatar_salvo.avatar_v2_base }}"
+        data-saved-skin="{{ avatar_salvo.avatar_v2_pele }}"
+        data-saved-hair="{{ avatar_salvo.avatar_v2_cabelo }}"
+        data-saved-hair-color="{{ avatar_salvo.avatar_v2_cor_cabelo }}"
+        data-saved-beard="{{ avatar_salvo.avatar_v2_barba }}"
+        data-saved-shirt="{{ avatar_salvo.avatar_v2_roupa }}"
+        data-saved-shirt-color="{{ avatar_salvo.avatar_v2_cor_roupa }}"
+    >
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ destino }}">
+        {% for error in form.non_field_errors %}<p class="avatar-v2-error" role="alert">{{ error }}</p>{% endfor %}
+
+        <fieldset class="avatar-v2-section">
+            <legend>Base</legend>
+            <div class="avatar-v2-options">
+                {% for identificador, nome in bases_avatar.items %}
+                    <label class="avatar-v2-choice">
+                        <input type="radio" name="avatar_v2_base" value="{{ identificador }}" {% if form.avatar_v2_base.value == identificador %}checked{% endif %}>
+                        <span class="avatar-v2-choice__visual"><img src="{% if identificador == 'feminina' %}{% static 'dropduo/avatars/v2/pieces/base-f.png' %}{% else %}{% static 'dropduo/avatars/v2/pieces/base-m.png' %}{% endif %}" alt="">{{ nome }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            {% for error in form.avatar_v2_base.errors %}<p class="avatar-v2-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <fieldset class="avatar-v2-section">
+            <legend>Tom de pele</legend>
+            <div class="avatar-v2-swatches">
+                {% for identificador, dados in tons_pele_avatar.items %}
+                    <label class="avatar-v2-swatch" title="{{ dados.nome }}"><input type="radio" name="avatar_v2_pele" value="{{ identificador }}" aria-label="{{ dados.nome }}" {% if form.avatar_v2_pele.value == identificador %}checked{% endif %}><span class="avatar-v2-swatch__color" style="--swatch: {{ dados.cor }}"></span></label>
+                {% endfor %}
+            </div>
+            {% for error in form.avatar_v2_pele.errors %}<p class="avatar-v2-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <fieldset class="avatar-v2-section">
+            <legend>Cabelo</legend>
+            <div class="avatar-v2-options">
+                {% for identificador, nome in cabelos_avatar.items %}
+                    <label class="avatar-v2-choice">
+                        <input type="radio" name="avatar_v2_cabelo" value="{{ identificador }}" {% if form.avatar_v2_cabelo.value == identificador %}checked{% endif %}>
+                        <span class="avatar-v2-choice__visual">{% if identificador == 'curto' %}<img src="{% static 'dropduo/avatars/v2/pieces/hair-short.png' %}" alt="">{% elif identificador == 'comprido' %}<img src="{% static 'dropduo/avatars/v2/pieces/hair-long.png' %}" alt="">{% endif %}{{ nome }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            {% for error in form.avatar_v2_cabelo.errors %}<p class="avatar-v2-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <fieldset class="avatar-v2-section">
+            <legend>Cor do cabelo e da barba</legend>
+            <div class="avatar-v2-swatches">
+                {% for identificador, dados in cores_cabelo_avatar.items %}
+                    <label class="avatar-v2-swatch" title="{{ dados.nome }}"><input type="radio" name="avatar_v2_cor_cabelo" value="{{ identificador }}" aria-label="{{ dados.nome }}" {% if form.avatar_v2_cor_cabelo.value == identificador %}checked{% endif %}><span class="avatar-v2-swatch__color" style="--swatch: {{ dados.cor }}"></span></label>
+                {% endfor %}
+            </div>
+            {% for error in form.avatar_v2_cor_cabelo.errors %}<p class="avatar-v2-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <fieldset class="avatar-v2-section">
+            <legend>Barba</legend>
+            <div class="avatar-v2-options">
+                {% for identificador, nome in barbas_avatar.items %}
+                    <label class="avatar-v2-choice">
+                        <input type="radio" name="avatar_v2_barba" value="{{ identificador }}" {% if form.avatar_v2_barba.value == identificador %}checked{% endif %}>
+                        <span class="avatar-v2-choice__visual">{% if identificador == 'curta' %}<img src="{% static 'dropduo/avatars/v2/pieces/beard-short.png' %}" alt="">{% endif %}{{ nome }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            {% for error in form.avatar_v2_barba.errors %}<p class="avatar-v2-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <fieldset class="avatar-v2-section">
+            <legend>Roupa</legend>
+            <div class="avatar-v2-options">
+                {% for identificador, nome in roupas_avatar.items %}
+                    <label class="avatar-v2-choice">
+                        <input type="radio" name="avatar_v2_roupa" value="{{ identificador }}" {% if form.avatar_v2_roupa.value == identificador %}checked{% endif %}>
+                        <span class="avatar-v2-choice__visual"><img src="{% if identificador == 'camisa_azul' %}{% static 'dropduo/avatars/v2/pieces/jacket.png' %}{% else %}{% static 'dropduo/avatars/v2/pieces/base-m.png' %}{% endif %}" alt="">{{ nome }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+            {% for error in form.avatar_v2_roupa.errors %}<p class="avatar-v2-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <fieldset class="avatar-v2-section" data-shirt-colors>
+            <legend>Cor da camiseta</legend>
+            <div class="avatar-v2-swatches">
+                {% for identificador, dados in cores_roupa_avatar.items %}
+                    <label class="avatar-v2-swatch" title="{{ dados.nome }}"><input type="radio" name="avatar_v2_cor_roupa" value="{{ identificador }}" aria-label="{{ dados.nome }}" {% if form.avatar_v2_cor_roupa.value == identificador %}checked{% endif %}><span class="avatar-v2-swatch__color" style="--swatch: {{ dados.cor }}"></span></label>
+                {% endfor %}
+            </div>
+            {% for error in form.avatar_v2_cor_roupa.errors %}<p class="avatar-v2-error" role="alert">{{ error }}</p>{% endfor %}
+        </fieldset>
+
+        <div class="avatar-v2-actions"><button class="button" type="submit">Salvar avatar</button><a class="button button--secondary" href="{{ cancelar_url }}">Cancelar</a></div>
+    </form>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}<script src="{% static 'js/avatar-editor.js' %}?v=20261018-1"></script>{% endblock %}

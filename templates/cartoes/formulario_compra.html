@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}{{ titulo }} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Cartão de crédito</p>
+    <h1 id="titulo-pagina">{{ titulo }}</h1>
+    <p class="card-description">
+        Compras feitas até o fechamento entram no ciclo atual. O mês exibido na
+        fatura é sempre o mês do vencimento.
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {{ form.chave_formulario }}
+        {% for field in form.visible_fields %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}<p class="field-help">{{ field.help_text }}</p>{% endif %}
+                {% for error in field.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        {% for error in form.non_field_errors %}
+            <p class="field-error" role="alert">{{ error }}</p>
+        {% endfor %}
+
+        <button class="button" type="submit">{{ texto_botao }}</button>
+        <a class="button button--secondary" href="{% url 'cartoes:lista' %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

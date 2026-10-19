@@ -1,0 +1,24 @@
+{% load static %}
+<canvas
+    class="dropduo-avatar__v2 {{ canvas_classe|default:'' }}"
+    width="{% if editor_preview %}512{% else %}160{% endif %}"
+    height="{% if editor_preview %}560{% else %}160{% endif %}"
+    role="img"
+    aria-label="{{ rotulo_avatar|default:'Prévia do avatar' }}"
+    data-dropduo-avatar-v2
+    data-avatar-variant="{% if editor_preview %}full{% else %}portrait{% endif %}"
+    {% if editor_preview %}data-avatar-editor-preview{% endif %}
+    data-avatar-base="{{ avatar_base }}"
+    data-avatar-pele="{{ avatar_pele }}"
+    data-avatar-cabelo="{{ avatar_cabelo }}"
+    data-avatar-cor-cabelo="{{ avatar_cor_cabelo }}"
+    data-avatar-barba="{{ avatar_barba }}"
+    data-avatar-roupa="{{ avatar_roupa }}"
+    data-avatar-cor-roupa="{{ avatar_cor_roupa }}"
+    data-asset-base-m="{% static 'dropduo/avatars/v2/pieces/base-m.png' %}"
+    data-asset-base-f="{% static 'dropduo/avatars/v2/pieces/base-f.png' %}"
+    data-asset-jacket-base-m="{% static 'dropduo/avatars/v2/pieces/base-m-jacket.png' %}"
+    data-asset-jacket-base-f="{% static 'dropduo/avatars/v2/pieces/base-f-jacket.png' %}"
+    data-asset-jacket="{% static 'dropduo/avatars/v2/pieces/jacket.png' %}"
+    data-asset-rendered-root="{% static 'dropduo/avatars/v2/pieces/rendered/' %}"
+></canvas>

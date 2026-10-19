@@ -1,0 +1,20 @@
+Analise este prototipo local de editor de avatar e o projeto Django existente.
+Primeiro abra index.html e verifique as combinacoes reais, especialmente os
+encaixes. O atlas e experimental; nao o trate como arte final validada.
+Preserve todos os perfis e avatares atuais. Nao publique nem faca commit.
+
+Planeje a integracao reaproveitando o cadastro de avatar existente:
+- Controles por miniaturas e paletas visuais, navegaveis por teclado.
+- Catalogo de IDs permitidos e compativeis, validado no servidor.
+- Configuracao versionada: base, pele, cabelo, cor, barba, roupa e cor.
+- Um renderer consistente no editor, perfil, inicio e salas.
+- Trocar localStorage por persistencia autenticada do proprio usuario.
+- POST com CSRF, sem aceitar caminhos ou URLs de assets arbitrarios.
+- Nao bloquear onboarding por falha de imagem; manter fallback existente.
+- Usar static do Django, sem depender de caminhos Windows absolutos.
+- Melhorar os encaixes e substituir mascaras aproximadas por mascaras explicitas
+  antes de declarar pronto para producao.
+- So migrar a aparencia de um usuario quando ele salvar o novo avatar.
+
+As artes originais foram geradas com image_gen; o prototipo compoe e aplica
+cores no Canvas. Nao ha dependencia externa nem chamada a API no navegador.

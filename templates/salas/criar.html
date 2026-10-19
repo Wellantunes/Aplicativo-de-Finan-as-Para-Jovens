@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Criar sala | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card form-page" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Espaço compartilhado</p>
+    <h1 id="titulo-pagina">Criar sala</h1>
+    <p class="card-description">
+        Escolha se o espaço representa um casal ou amigos. O limite continua
+        sendo de duas pessoas nesta versão.
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% if field.help_text %}
+                    <p class="field-help">{{ field.help_text }}</p>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="room-symbol-guide" aria-label="Símbolos disponíveis">
+            <span><img class="dropduo-png" src="{% static 'dropduo/scenes/coracao-pequeno.png' %}" alt=""> Coração</span>
+            <span><img class="dropduo-png" src="{% static 'dropduo/icons/bau.png' %}" alt=""> Baú</span>
+        </div>
+
+        <button class="button" type="submit">Criar sala</button>
+        <a class="button button--secondary" href="{% url 'core:home' %}">Voltar</a>
+    </form>
+</section>
+{% endblock %}

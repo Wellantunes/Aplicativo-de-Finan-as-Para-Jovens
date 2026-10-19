@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmar participação | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Confirme antes de entrar</p>
+    <h1 id="titulo-pagina">{{ convite.sala.nome }}</h1>
+    <p class="card-description">
+        Ao confirmar, você e o criador passarão a acessar este mesmo espaço
+        financeiro.
+    </p>
+
+    <div class="summary-box">
+        <span class="summary-box__label">Orçamento mensal previsto</span>
+        <strong>R$ {{ convite.sala.orcamento_mensal|floatformat:2 }}</strong>
+    </div>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        <button class="button" type="submit">Confirmar participação</button>
+        <a class="button button--secondary" href="{% url 'salas:entrar' %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

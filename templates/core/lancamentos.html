@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Lançamentos | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="shortcuts-page" aria-labelledby="titulo-lancamentos">
+    <header class="content-card shortcuts-page__header">
+        <p class="eyebrow">{% if sala %}{{ sala.nome }}{% else %}Meu espaço{% endif %}</p>
+        <h1 id="titulo-lancamentos">Lançamentos</h1>
+        <p class="card-description">Escolha um item, informe o valor e conclua.</p>
+    </header>
+
+    <nav class="type-switch" aria-label="Tipo de lançamento">
+        <a class="type-switch__option type-switch__option--saida" href="?tipo=saida{% if mes_consulta %}&mes={{ mes_consulta }}{% endif %}" {% if tipo_selecionado == 'saida' %}aria-current="true"{% endif %}><span aria-hidden="true">−</span> Saída</a>
+        <a class="type-switch__option type-switch__option--entrada" href="?tipo=entrada{% if mes_consulta %}&mes={{ mes_consulta }}{% endif %}" {% if tipo_selecionado == 'entrada' %}aria-current="true"{% endif %}><span aria-hidden="true">+</span> Entrada</a>
+    </nav>
+
+    <div class="shortcuts-page__items">
+        <div class="shortcut-toolbar">
+            <a class="button shortcut-new-button" href="{% url 'core:criar_atalho' %}?tipo={{ tipo_selecionado }}{% if mes_consulta %}&mes={{ mes_consulta }}{% endif %}">Novo item</a>
+        </div>
+
+        <form class="shortcut-search" method="get" role="search">
+            <input type="hidden" name="tipo" value="{{ tipo_selecionado }}">
+            {% if mes_consulta %}<input type="hidden" name="mes" value="{{ mes_consulta }}">{% endif %}
+            <label for="busca-atalho">Buscar item</label>
+            <div><input id="busca-atalho" name="busca" type="search" value="{{ busca }}" placeholder="Ex.: Mercado"><button class="button button--secondary" type="submit">Buscar</button></div>
+        </form>
+
+        <div class="shortcut-grid" aria-label="Itens de {{ tipo_selecionado }}">
+        {% if mostrar_vale %}
+            <article class="shortcut-item shortcut-item--entrada shortcut-item--vale">
+                <a class="shortcut-tile shortcut-tile--entrada" href="{% url 'core:registrar_vale' %}{% if mes_consulta %}?mes={{ mes_consulta }}{% endif %}">
+                    <span class="shortcut-tile__symbol"><img class="dropduo-png" src="{% static 'dropduo/icons/talheres.png' %}" alt=""></span>
+                    <strong>Vale-alimentação</strong>
+                    <small>Benefício</small>
+                </a>
+            </article>
+        {% endif %}
+        {% if tipo_selecionado == 'saida' %}
+            {% for cartao in cartoes %}
+                <article class="shortcut-item shortcut-item--card">
+                    <a class="shortcut-tile shortcut-tile--card" href="{% url 'cartoes:criar_compra_cartao' cartao.pk %}">
+                        <span class="shortcut-tile__symbol"><img class="dropduo-png" src="{% static cartao.caminho_simbolo %}" alt=""></span>
+                        <strong>Cartão {{ cartao.nome }}</strong>
+                        <small>Crédito</small>
+                    </a>
+                </article>
+            {% endfor %}
+        {% endif %}
+        {% for atalho in atalhos %}
+            <article class="shortcut-item shortcut-item--{{ atalho.tipo }}">
+                <a class="shortcut-tile shortcut-tile--{{ atalho.tipo }}" href="{% url 'core:registrar_atalho' atalho.pk %}{% if mes_consulta %}?mes={{ mes_consulta }}{% endif %}">
+                    <span class="shortcut-tile__symbol"><img class="dropduo-png" src="{% static atalho.caminho_simbolo %}" alt=""></span>
+                    <strong>{{ atalho.nome }}</strong>
+                    <small>{{ atalho.get_tipo_display }}</small>
+                </a>
+                <details class="shortcut-item__options">
+                    <summary aria-label="Opções de {{ atalho.nome }}">•••</summary>
+                    <div>
+                        <a href="{% url 'core:editar_atalho' atalho.pk %}?tipo={{ tipo_selecionado }}{% if mes_consulta %}&mes={{ mes_consulta }}{% endif %}">Editar</a>
+                        <form method="post" action="{% url 'core:alternar_arquivo_atalho' atalho.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="origem" value="lancamentos">
+                            {% if mes_consulta %}<input type="hidden" name="mes" value="{{ mes_consulta }}">{% endif %}
+                            <button type="submit">Arquivar</button>
+                        </form>
+                    </div>
+                </details>
+            </article>
+        {% empty %}
+            {% if not cartoes and not mostrar_vale %}
+            <div class="empty-state shortcut-grid__empty">
+                <p>{% if busca %}Nenhum item encontrado.{% else %}Crie seu primeiro item de {{ tipo_selecionado }}.{% endif %}</p>
+            </div>
+            {% endif %}
+        {% endfor %}
+        </div>
+
+        {% if atalhos_arquivados %}
+            <details class="archived-shortcuts">
+            <summary>Itens arquivados ({{ atalhos_arquivados.count }})</summary>
+            <div>
+                {% for atalho in atalhos_arquivados %}
+                    <article>
+                        <img class="dropduo-png" src="{% static atalho.caminho_simbolo %}" alt="">
+                        <strong>{{ atalho.nome }}</strong>
+                        <form method="post" action="{% url 'core:alternar_arquivo_atalho' atalho.pk %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="origem" value="lancamentos">
+                            {% if mes_consulta %}<input type="hidden" name="mes" value="{{ mes_consulta }}">{% endif %}
+                            <button type="submit">Restaurar</button>
+                        </form>
+                    </article>
+                {% endfor %}
+            </div>
+            </details>
+        {% endif %}
+
+        {% if controla_dizimos and tipo_selecionado == 'saida' %}
+            <a class="special-operation" href="{% url 'entradas:lista' %}{% if mes_consulta %}?mes={{ mes_consulta }}{% endif %}#dizimos">
+            <img class="dropduo-png" src="{% static 'dropduo/icons/coracao.png' %}" alt="">
+            <span><strong>Dízimos</strong><small>Usa a devolução existente e conta a saída uma única vez.</small></span>
+            </a>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}

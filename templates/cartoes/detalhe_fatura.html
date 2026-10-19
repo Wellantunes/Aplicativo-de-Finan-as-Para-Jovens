@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Fatura {{ fatura.referencia_formatada }} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">{{ fatura.cartao.nome }}</p>
+    <h1 id="titulo-pagina">Fatura {{ fatura.referencia_formatada }}</h1>
+
+    <div class="summary-box">
+        <span class="summary-box__label">Total registrado</span>
+        <strong>R$ {{ fatura.valor_total|floatformat:2 }}</strong>
+        <small>
+            Vencimento em {{ fatura.data_vencimento|date:"d/m/Y" }} ·
+            a referência {{ fatura.referencia_formatada }} corresponde ao vencimento
+        </small>
+    </div>
+    <p class="field-help">Confira com o banco: este total considera as compras registradas no Drop Duo.</p>
+
+    {% if tem_itens_privados %}
+        <div class="notice-box">
+            <strong>Subtotal visível: R$ {{ subtotal_visivel|floatformat:2 }}</strong>
+            <p>O total real também inclui itens privados do titular. Esses detalhes não são exibidos no espaço compartilhado.</p>
+        </div>
+    {% endif %}
+
+    {% if fatura.esta_paga %}
+        <p class="status-pill">
+            <span class="status-pill__dot" aria-hidden="true"></span>
+            Paga em {{ fatura.pagamento.data_pagamento|date:"d/m/Y" }}{% if fatura.pagamento.conta %} pela conta {{ fatura.pagamento.conta.nome }}{% else %} sem vínculo com conta{% endif %}
+        </p>
+    {% elif pode_pagar %}
+        <a class="button form-section" href="{% url 'cartoes:pagar_fatura' fatura.pk %}">Pagar fatura</a>
+    {% else %}
+        <p class="notice-box">Somente o titular pode registrar o pagamento desta fatura individual.</p>
+    {% endif %}
+
+    {% if pode_ajustar %}
+        <a class="button button--secondary form-section" href="{% url 'cartoes:ajustar_fatura' fatura.pk %}">Ajustar datas desta fatura</a>
+    {% endif %}
+
+    <section class="section-block" aria-labelledby="titulo-parcelas">
+        <div class="section-heading">
+            <h2 id="titulo-parcelas">Parcelas</h2>
+            <span>{{ parcelas_visiveis|length }}</span>
+        </div>
+        <div class="record-list">
+            {% for parcela in parcelas_visiveis %}
+                <article class="record-card">
+                    <div class="record-heading">
+                        <div>
+                            <h3>{{ parcela.compra.descricao }}</h3>
+                            <p>{{ parcela.numero }}/{{ parcela.compra.quantidade_parcelas }} · {{ parcela.compra.responsavel.get_full_name|default:parcela.compra.responsavel.username }}</p>
+                        </div>
+                        <p class="record-value">R$ {{ parcela.valor|floatformat:2 }}</p>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="empty-state">Nenhuma parcela autorizada para este espaço.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <a class="button button--secondary section-block" href="{% url 'cartoes:detalhe_cartao' fatura.cartao_id %}">Voltar ao cartão</a>
+</section>
+{% endblock %}

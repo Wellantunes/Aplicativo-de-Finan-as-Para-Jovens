@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Cartões | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card cards-page" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">{{ titulo_espaco }}</p>
+    <h1 id="titulo-pagina">Cartões</h1>
+    <p class="card-description">Cadastre cartões e consulte os ciclos já registrados.</p>
+
+    <a class="button form-section" href="{% url 'contas:criar_cartao' %}">Cadastrar cartão</a>
+
+    <div class="credit-card-grid section-block">
+        {% for cartao in cartoes %}
+            <a class="credit-card-option credit-card-option--{{ cartao.cor_simbolo }}" href="{% url 'cartoes:detalhe_cartao' cartao.pk %}">
+                <img class="dropduo-png" src="{% static cartao.caminho_simbolo %}" alt="">
+                <span>
+                    <strong>{{ cartao.nome }}</strong>
+                    <small>{{ cartao.texto_fechamento }}</small>
+                    <small>{{ cartao.texto_vencimento }}</small>
+                </span>
+                <span aria-hidden="true">›</span>
+            </a>
+        {% empty %}
+            <div class="empty-state card-empty-state">
+                <p>Você ainda não cadastrou nenhum cartão.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if cartoes_arquivados %}
+        <details class="archived-shortcuts section-block">
+            <summary>Cartões arquivados ({{ cartoes_arquivados.count }})</summary>
+            <div class="record-list">
+                {% for cartao in cartoes_arquivados %}
+                    <a class="record-card record-link" href="{% url 'cartoes:detalhe_cartao' cartao.pk %}">{{ cartao.nome }}</a>
+                {% endfor %}
+            </div>
+        </details>
+    {% endif %}
+</section>
+{% endblock %}

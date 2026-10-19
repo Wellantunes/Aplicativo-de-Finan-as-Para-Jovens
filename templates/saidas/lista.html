@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static financeiro %}
+
+{% block title %}{% if somente_custo_vida %}Custo de vida{% else %}Saídas{% endif %} | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card ledger-list-page{% if somente_custo_vida %} cost-of-living-page{% endif %}" aria-labelledby="titulo-pagina">
+    <header class="ledger-list-header">
+        <div>
+            <div class="ledger-list-title">
+                <h1 id="titulo-pagina">{% if somente_custo_vida %}Custo de vida{% else %}Saídas{% endif %}</h1>
+                <span class="workspace-badge">{{ contexto_espaco }}</span>
+            </div>
+            <p class="ledger-list-period">{{ data_mes|date:"F \d\e Y"|capfirst }}</p>
+        </div>
+        <a class="button ledger-list-add" href="{% url 'core:lancamentos' %}?tipo=saida{% if mes_selecionado %}&amp;mes={{ mes_selecionado }}{% endif %}">Registrar saída</a>
+    </header>
+
+    <p class="card-description">
+        Pagas e pendentes pertencem ao mês da data de referência.
+    </p>
+
+    {% if not somente_custo_vida %}
+        <details class="ledger-filters section-block"{% if request.GET.responsavel or request.GET.situacao %} open{% endif %}>
+            <summary id="titulo-filtros">
+                <span>Filtrar compromissos</span>
+                <small>Mês, responsável e situação</small>
+            </summary>
+            <form class="filter-form" method="get">
+                {% for field in filtro %}
+                    <div class="form-field">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% for error in field.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}
+                    </div>
+                {% endfor %}
+                <button class="button" type="submit">Aplicar filtros</button>
+                <a class="button button--secondary" href="{% url 'saidas:lista' %}">Limpar</a>
+            </form>
+        </details>
+    {% endif %}
+
+    <section class="section-block" id="titulo-custo-vida" aria-labelledby="titulo-compromissos">
+        <div class="section-heading">
+            <h2 id="titulo-compromissos">Compromissos</h2>
+            <span>{{ saidas.paginator.count }}</span>
+        </div>
+
+        <div class="record-list financial-record-list">
+            {% for saida in saidas %}
+                <article class="financial-record-card">
+                    <header class="financial-record-card__header">
+                        <div class="financial-record-card__identity">
+                            <img class="dropduo-png financial-record-card__icon" src="{% static saida.atalho.caminho_simbolo|default:'dropduo/icons/bau.png' %}" alt="">
+                            <div>
+                                <h3>{{ saida.descricao }}</h3>
+                                {% if not somente_custo_vida %}<p>{% if saida.custo_vida %}Custo de vida{% else %}Outros gastos{% endif %}</p>{% endif %}
+                            </div>
+                        </div>
+                        <strong class="financial-record-card__value financial-value">{{ saida.valor|moeda_br }}</strong>
+                    </header>
+
+                    <div class="financial-record-card__meta">
+                        <time datetime="{{ saida.data_referencia|date:'Y-m-d' }}">Referência: {{ saida.data_referencia|date:"d/m/Y" }}</time>
+                        <span class="status-badge status-badge--{{ saida.situacao }}">{{ saida.get_situacao_display }}</span>
+                    </div>
+
+                    {% if sala %}<p class="financial-record-card__person">Responsável: {{ saida.responsavel.get_full_name|default:saida.responsavel.username }}</p>{% endif %}
+                    {% if saida.situacao == 'paga' and saida.data_pagamento and saida.data_pagamento != saida.data_referencia %}<p class="record-note">Paga em {{ saida.data_pagamento|date:"d/m/Y" }}</p>{% endif %}
+                    {% if saida.observacao %}<p class="record-note">{{ saida.observacao }}</p>{% endif %}
+
+                    {% if not saida.proprietario_usuario_id or saida.proprietario_usuario_id == user.id %}
+                        <footer class="financial-record-card__actions">
+                            {% if saida.situacao == 'pendente' %}<a class="record-action record-action--confirm" href="{% url 'saidas:pagar' saida.pk %}?{{ parametros_navegacao }}">Confirmar pagamento</a>{% endif %}
+                            <a class="record-action record-action--edit" href="{% url 'saidas:editar' saida.pk %}?{{ parametros_navegacao }}">
+                                <svg aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#edit"></use></svg>
+                                <span>Editar</span>
+                            </a>
+                            <a class="record-action record-action--delete" href="{% url 'saidas:excluir' saida.pk %}?{{ parametros_navegacao }}">
+                                <svg aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#trash"></use></svg>
+                                <span>Excluir</span>
+                            </a>
+                        </footer>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <p class="empty-state">Nenhum compromisso cadastrado neste mês.</p>
+            {% endfor %}
+        </div>
+        {% include "includes/paginacao.html" with pagina=saidas %}
+    </section>
+
+    <a class="button button--secondary section-block" href="{% url 'entradas:lista' %}?mes={{ mes_selecionado }}">Ver entradas</a>
+</section>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar devolução | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Dízimo</p>
+    <h1 id="titulo-pagina">Registrar devolução</h1>
+    <p class="card-description">{{ entrada.descricao }}</p>
+
+    <div class="tithe-summary tithe-summary--large">
+        <span>Previsto <strong>R$ {{ entrada.dizimo_previsto|floatformat:2 }}</strong></span>
+        <span>Devolvido <strong>R$ {{ entrada.valor_devolvido|floatformat:2 }}</strong></span>
+        <span>Restante <strong>R$ {{ entrada.dizimo_restante|floatformat:2 }}</strong></span>
+    </div>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {{ form.chave_formulario }}
+        {% for field in form.visible_fields %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <button class="button" type="submit">Registrar devolução</button>
+        <a class="button button--secondary" href="{{ voltar_url }}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}

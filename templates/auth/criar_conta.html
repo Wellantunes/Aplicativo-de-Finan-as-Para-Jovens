@@ -1,0 +1,21 @@
+{% extends "auth/base_public.html" %}
+{% load socialaccount %}
+{% block title %}Criar conta | Drop Duo{% endblock %}
+{% block auth_content %}
+<header class="auth-card__header">
+    <p class="auth-card__eyebrow">Primeiro acesso</p>
+    <h2 id="titulo-autenticacao">Comece sua próxima fase</h2>
+    <p>Seu controle financeiro começa aqui.</p>
+</header>
+
+<form class="auth-google-form" method="post" action="{% provider_login_url 'google' process='login' %}">
+    {% csrf_token %}
+    <button class="auth-google-button" type="submit" data-loading-text="Abrindo Google...">
+        <span class="google-mark" aria-hidden="true">G</span>
+        Continuar com Google
+    </button>
+</form>
+<p class="auth-google-help">No primeiro acesso com Google, seu perfil é criado com segurança.</p>
+
+<p class="auth-footer">Já tem uma conta Google conectada? <a href="{% url 'core:entrar' %}">Entrar</a></p>
+{% endblock %}

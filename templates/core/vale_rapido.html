@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registrar vale-alimentação | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card quick-register-page quick-register-page--entrada" aria-labelledby="titulo-registro-vale">
+    <a class="back-link" href="{% url 'core:lancamentos' %}?tipo=entrada{% if mes_consulta %}&mes={{ mes_consulta }}{% endif %}">← Voltar aos lançamentos</a>
+    <header class="quick-register-heading quick-register-heading--entrada">
+        <span><img class="dropduo-png" src="{% static 'dropduo/icons/talheres.png' %}" alt=""></span>
+        <div><p class="eyebrow">Entrada · benefício</p><h1 id="titulo-registro-vale">Vale-alimentação</h1></div>
+    </header>
+
+    {% if confirmacao %}
+        <div class="quick-register-success" role="status">
+            <strong>Registro concluído.</strong>
+            <span>{{ confirmacao.texto_periodo }}</span>
+            {% if confirmacao.fora_do_periodo %}<span>O mês consultado não alterou a data do lançamento.</span>{% endif %}
+            <a href="{{ confirmacao.url_historico }}">Ver nas entradas do período</a>
+        </div>
+    {% endif %}
+
+    <form class="form-stack quick-register-form" method="post">
+        {% csrf_token %}
+        {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+        {% if form.non_field_errors %}<div class="field-error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="form-field quick-value-field">{{ form.valor.label_tag }}{{ form.valor }}{% for error in form.valor.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+        <div class="form-field">{{ form.descricao.label_tag }}{{ form.descricao }}{% for error in form.descricao.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+        <div class="form-field">{{ form.data.label_tag }}{{ form.data }}{% for error in form.data.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
+        <p class="field-help">O vale fica separado do dinheiro. Uma data futura será registrada como previsão.</p>
+        <button class="button quick-register-submit quick-register-submit--entrada" type="submit">Concluir</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Configurar dízimo | Drop Duo{% endblock %}
+
+{% block content %}
+<section class="content-card" aria-labelledby="titulo-pagina">
+    <p class="eyebrow">Padrão individual</p>
+    <h1 id="titulo-pagina">{% if editando %}Editar{% else %}Nova{% endif %} configuração</h1>
+    <p class="card-description">
+        Este padrão será sugerido nos próximos lançamentos e não altera entradas antigas.
+    </p>
+
+    <form class="form-stack form-section" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-field">
+                {{ field.label_tag }}
+                {{ field }}
+                {% for error in field.errors %}
+                    <p class="field-error" role="alert">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        {% for error in form.non_field_errors %}
+            <p class="field-error" role="alert">{{ error }}</p>
+        {% endfor %}
+
+        <button class="button" type="submit">Salvar configuração</button>
+        <a class="button button--secondary" href="{% url 'entradas:configuracoes' %}">Cancelar</a>
+    </form>
+</section>
+{% endblock %}
