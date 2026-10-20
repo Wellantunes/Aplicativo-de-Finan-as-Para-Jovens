@@ -16,6 +16,7 @@ from core.espacos import (
     sala_do_usuario,
     usuario_pode_administrar,
 )
+from core.periodos import data_inicial_do_mes, mes_ativo
 
 from .forms import (
     CompraCreditoForm,
@@ -102,6 +103,7 @@ def _parcelas_visiveis(fatura, request):
 
 @login_required
 def lista(request):
+    mes_ativo(request, request.GET.get("mes"))
     cartoes = _cartoes_visiveis(request).select_related(
         "titular", "proprietario_usuario"
     )
@@ -154,9 +156,10 @@ def alternar_arquivo_cartao(request, cartao_id):
 @login_required
 def criar_compra_cartao(request, cartao_id):
     cartao = _cartao_visivel(request, cartao_id, incluir_arquivado=False)
+    _, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
     form = CompraRapidaCartaoForm(request.POST or None, cartao=cartao)
     if request.method == "GET":
-        form.fields["data_compra"].initial = timezone.localdate()
+        form.fields["data_compra"].initial = data_inicial_do_mes(ano, numero_mes)
 
     if request.method == "POST" and form.is_valid():
         sala = sala_ativa(request)
@@ -230,7 +233,13 @@ def previa_fatura(request, cartao_id):
 @login_required
 def criar_compra_view(request):
     sala = sala_ativa(request)
-    form = CompraCreditoForm(request.POST or None, sala=sala, usuario=request.user)
+    _, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
+    form = CompraCreditoForm(
+        request.POST or None,
+        sala=sala,
+        usuario=request.user,
+        initial={"data_compra": data_inicial_do_mes(ano, numero_mes)},
+    )
     if request.method == "POST" and form.is_valid():
         compra, foi_criada = criar_compra(
             sala=sala,

@@ -1,14 +1,22 @@
 import re
 import uuid
+from decimal import Decimal
 
 from django import forms
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from core.campos import ValorBrasileiroField
 from .models import Saida
 
 
 class SaidaForm(forms.ModelForm):
     chave_formulario = forms.UUIDField(widget=forms.HiddenInput)
+    valor = ValorBrasileiroField(
+        label="Valor",
+        min_value=Decimal("0.01"),
+        max_digits=12,
+        decimal_places=2,
+    )
     compartilhar_sala = forms.BooleanField(
         label="Compartilhar na sala",
         required=False,
@@ -31,9 +39,6 @@ class SaidaForm(forms.ModelForm):
             "descricao": forms.TextInput(
                 attrs={"placeholder": "Ex.: mercado, aluguel ou almoço"}
             ),
-            "valor": forms.NumberInput(
-                attrs={"min": "0.01", "step": "0.01", "inputmode": "decimal"}
-            ),
             "vencimento": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "data_pagamento": forms.DateInput(
                 format="%Y-%m-%d",
@@ -44,12 +49,13 @@ class SaidaForm(forms.ModelForm):
             ),
         }
 
-    def __init__(self, *args, sala=None, usuario=None, **kwargs):
+    def __init__(self, *args, sala=None, usuario=None, data_inicial=None, **kwargs):
         kwargs.setdefault("initial", {})
         kwargs["initial"].setdefault("chave_formulario", uuid.uuid4())
         kwargs["initial"].setdefault("situacao", Saida.Situacao.PAGA)
-        kwargs["initial"].setdefault("vencimento", timezone.localdate())
-        kwargs["initial"].setdefault("data_pagamento", timezone.localdate())
+        data_padrao = data_inicial or timezone.localdate()
+        kwargs["initial"].setdefault("vencimento", data_padrao)
+        kwargs["initial"].setdefault("data_pagamento", data_padrao)
         super().__init__(*args, **kwargs)
         self.sala = sala
         self.usuario = usuario

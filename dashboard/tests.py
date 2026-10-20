@@ -630,7 +630,8 @@ class DashboardViewTests(DashboardBaseTests):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'name="viewport"')
         self.assertContains(response, "Painel mensal")
-        self.assertContains(response, "Todos")
+        self.assertNotContains(response, 'name="responsavel"')
+        self.assertContains(response, "Espaço compartilhado")
         destino_entrada = reverse("core:lancamentos") + "?tipo=entrada&amp;mes=2025-10"
         destino_saida = reverse("core:lancamentos") + "?tipo=saida&amp;mes=2025-10"
         self.assertContains(response, f'href="{destino_entrada}"')

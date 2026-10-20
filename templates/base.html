@@ -12,7 +12,7 @@
     <link rel="manifest" href="{% url 'core:manifesto' %}">
     <link rel="icon" href="{% static 'images/app-icon.svg' %}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{% static 'images/app-icon.svg' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20261019-1">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20261019-4">
     {% block extra_styles %}{% endblock %}
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -41,9 +41,9 @@
         {% if messages %}
             <div class="messages" aria-label="Notificações">
                 {% for message in messages %}
-                    <div class="message message--{{ message.tags|default:'info' }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" {% if "login-success" in message.tags %}data-dismissible-message data-auto-dismiss-message{% endif %}>
+                    <div class="message message--{{ message.tags|default:'info' }}" role="{% if "error" in message.tags %}alert{% else %}status{% endif %}" data-dismissible-message {% if "success" in message.tags or "info" in message.tags %}data-auto-dismiss-message{% endif %}>
                         <span>{{ message }}</span>
-                        {% if "login-success" in message.tags %}<button type="button" aria-label="Dispensar confirmação de login" data-dismiss-message>×</button>{% endif %}
+                        <button type="button" aria-label="Dispensar aviso" data-dismiss-message>×</button>
                     </div>
                 {% endfor %}
             </div>
@@ -54,22 +54,22 @@
             <details class="quick-add" data-quick-add>
                 <summary aria-label="Abrir opções para adicionar lançamento"><svg class="pixel-icon" aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#plus"></use></svg><span class="sr-only">Adicionar</span></summary>
                 <div class="quick-add__menu">
-                    <a href="{% url 'core:lancamentos' %}?tipo=saida{% if request.GET.mes %}&amp;mes={{ request.GET.mes|urlencode }}{% endif %}">Saída</a>
-                    <a href="{% url 'core:lancamentos' %}?tipo=entrada{% if request.GET.mes %}&amp;mes={{ request.GET.mes|urlencode }}{% endif %}">Entrada</a>
-                    <a href="{% url 'core:lancamentos' %}?tipo=saida{% if request.GET.mes %}&amp;mes={{ request.GET.mes|urlencode }}{% endif %}">Compra no crédito</a>
+                    <a href="{% url 'core:lancamentos' %}?tipo=saida&amp;mes={{ mes_navegacao }}">Saída</a>
+                    <a href="{% url 'core:lancamentos' %}?tipo=entrada&amp;mes={{ mes_navegacao }}">Entrada</a>
+                    <a href="{% url 'core:lancamentos' %}?tipo=saida&amp;mes={{ mes_navegacao }}">Compra no crédito</a>
                 </div>
             </details>
             <nav class="bottom-navigation" aria-label="Navegação principal">
-                <a href="{% url 'dashboard:mensal' %}" {% if request.resolver_match.namespace == 'dashboard' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/casa.png" classe="pixel-icon" decorativo=True %}<span>Início</span></a>
-                <a href="{% url 'core:lancamentos' %}" {% if request.resolver_match.url_name == 'lancamentos' or request.resolver_match.url_name == 'registrar_vale' or request.resolver_match.namespace == 'entradas' or request.resolver_match.namespace == 'saidas' or request.resolver_match.url_name == 'criar_compra_cartao' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/lista-lancamentos.png" classe="pixel-icon" decorativo=True %}<span>Lançamentos</span></a>
+                <a href="{% url 'dashboard:mensal' %}?mes={{ mes_navegacao }}" {% if request.resolver_match.namespace == 'dashboard' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/casa.png" classe="pixel-icon" decorativo=True %}<span>Início</span></a>
+                <a href="{% url 'core:lancamentos' %}?mes={{ mes_navegacao }}" {% if request.resolver_match.url_name == 'lancamentos' or request.resolver_match.url_name == 'registrar_vale' or request.resolver_match.namespace == 'entradas' or request.resolver_match.namespace == 'saidas' or request.resolver_match.url_name == 'criar_compra_cartao' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/lista-lancamentos.png" classe="pixel-icon" decorativo=True %}<span>Lançamentos</span></a>
                 <span class="bottom-navigation__spacer" aria-hidden="true"></span>
-                <a href="{% url 'cartoes:lista' %}" {% if request.resolver_match.namespace == 'cartoes' and request.resolver_match.url_name != 'criar_compra_cartao' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/carteira.png" classe="pixel-icon" decorativo=True %}<span>Cartões</span></a>
-                <a href="{% url 'salas:minha_sala' %}" {% if request.resolver_match.namespace == 'salas' %}aria-current="page"{% endif %}><svg class="pixel-icon" aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#people"></use></svg><span>Sala</span></a>
+                <a href="{% url 'cartoes:lista' %}?mes={{ mes_navegacao }}" {% if request.resolver_match.namespace == 'cartoes' and request.resolver_match.url_name != 'criar_compra_cartao' %}aria-current="page"{% endif %}>{% include "includes/dropduo_icon.html" with caminho="dropduo/icons/carteira.png" classe="pixel-icon" decorativo=True %}<span>Cartões</span></a>
+                <a href="{% url 'salas:minha_sala' %}?mes={{ mes_navegacao }}" {% if request.resolver_match.namespace == 'salas' %}aria-current="page"{% endif %}><svg class="pixel-icon" aria-hidden="true"><use href="{% static 'images/pixel-icons.svg' %}#people"></use></svg><span>Sala</span></a>
             </nav>
         {% endif %}
     </div>
     <script src="{% static 'js/avatar-v2-renderer.js' %}?v=20261018-1"></script>
-    <script src="{% static 'js/app.js' %}?v=20261018-1"></script>
+    <script src="{% static 'js/app.js' %}?v=20261019-3"></script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

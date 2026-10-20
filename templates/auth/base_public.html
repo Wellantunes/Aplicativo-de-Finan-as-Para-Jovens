@@ -8,8 +8,8 @@
     <meta name="description" content="Drop Duo: organize suas finanças no seu espaço ou planeje em dupla.">
     <title>{% block title %}Drop Duo{% endblock %}</title>
     <link rel="icon" href="{% static 'images/app-icon.svg' %}" type="image/svg+xml">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20261019-1">
-    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20261019-1">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=20261019-4">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}?v=20261019-2">
 </head>
 <body class="auth-public-page">
     <a class="skip-link" href="#conteudo-autenticacao">Ir para o formulário</a>
@@ -35,7 +35,7 @@
                 {% if messages %}
                     <div class="auth-messages" aria-label="Notificações">
                         {% for message in messages %}
-                            <div class="auth-message auth-message--{{ message.tags|default:'info' }}" role="{% if message.tags == 'error' %}alert{% else %}status{% endif %}" data-dismissible-message {% if "login-success" in message.tags %}data-auto-dismiss-message{% endif %}>
+                            <div class="auth-message auth-message--{{ message.tags|default:'info' }}" role="{% if "error" in message.tags %}alert{% else %}status{% endif %}" data-dismissible-message {% if "success" in message.tags or "info" in message.tags %}data-auto-dismiss-message{% endif %}>
                                 <span>{{ message }}</span>
                                 <button type="button" aria-label="Dispensar aviso" data-dismiss-message>×</button>
                             </div>
@@ -46,6 +46,6 @@
             </section>
         </div>
     </main>
-    <script src="{% static 'js/app.js' %}?v=20261018-1"></script>
+    <script src="{% static 'js/app.js' %}?v=20261019-3"></script>
 </body>
 </html>

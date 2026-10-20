@@ -17,9 +17,19 @@ document.querySelectorAll("[data-dismiss-message]").forEach((botao) => {
     });
 });
 
+function removerMensagensTemporarias() {
+    document.querySelectorAll("[data-auto-dismiss-message]").forEach((mensagem) => {
+        mensagem.remove();
+    });
+}
+
 document.querySelectorAll("[data-auto-dismiss-message]").forEach((mensagem) => {
-    window.setTimeout(() => mensagem.remove(), 3000);
+    window.setTimeout(() => mensagem.remove(), 2800);
 });
+
+// Remove avisos temporários antes de o navegador guardar a página no cache de
+// navegação. Assim, eles não reaparecem quando a pessoa usa o botão Voltar.
+window.addEventListener("pagehide", removerMensagensTemporarias);
 
 document.querySelectorAll("form[method='post']").forEach((formulario) => {
     formulario.addEventListener("submit", (evento) => {
@@ -42,6 +52,7 @@ document.querySelectorAll("form[method='post']").forEach((formulario) => {
 // ainda desabilitado. Reativamos o formulário para que ele possa ser corrigido.
 window.addEventListener("pageshow", (evento) => {
     if (!evento.persisted) return;
+    removerMensagensTemporarias();
     document.querySelectorAll("form[data-enviando='true']").forEach((formulario) => {
         delete formulario.dataset.enviando;
         formulario.querySelectorAll("button[type='submit'][data-texto-original]").forEach((botao) => {
@@ -175,6 +186,59 @@ document.querySelectorAll("[data-quick-status]").forEach((grupoSituacao) => {
     }
 
     campoData.addEventListener("change", sugerirSituacaoPelaData);
+});
+
+function lerValorMonetario(texto) {
+    let valor = String(texto || "")
+        .trim()
+        .replace(/R\$/gi, "")
+        .replace(/\s/g, "")
+        .replace(/[^\d,.-]/g, "");
+    if (!valor) return null;
+
+    if (valor.includes(",")) {
+        valor = valor.replace(/\./g, "").replace(",", ".");
+    } else {
+        const pontos = (valor.match(/\./g) || []).length;
+        if (pontos > 1) {
+            const ultimoPonto = valor.lastIndexOf(".");
+            valor = `${valor.slice(0, ultimoPonto).replace(/\./g, "")}${valor.slice(ultimoPonto)}`;
+        }
+    }
+
+    const numero = Number(valor);
+    return Number.isFinite(numero) ? numero : null;
+}
+
+const formatadorMonetario = new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+});
+
+document.querySelectorAll("[data-money-input]").forEach((campo) => {
+    function formatarCampo() {
+        const valor = lerValorMonetario(campo.value);
+        if (valor !== null) campo.value = formatadorMonetario.format(valor);
+    }
+
+    campo.addEventListener("focus", () => {
+        const valor = lerValorMonetario(campo.value);
+        if (valor !== null) campo.value = valor.toFixed(2).replace(".", ",");
+    });
+    campo.addEventListener("blur", formatarCampo);
+    formatarCampo();
+});
+
+document.querySelectorAll("[data-symbol-options]").forEach((grade) => {
+    const selecionado = grade.querySelector("input:checked");
+    selecionado?.closest("label")?.scrollIntoView({block: "nearest"});
+    grade.addEventListener("change", (evento) => {
+        if (evento.target.matches("input[type='radio']")) {
+            evento.target.closest("label")?.scrollIntoView({block: "nearest"});
+        }
+    });
 });
 
 const formularioCartao = document.querySelector("[data-card-form]");

@@ -6,12 +6,19 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 
 from contas.models import CartaoCredito, Conta
+from core.campos import ValorBrasileiroField
 
 from .models import CompraCredito, Fatura
 
 
 class CompraCreditoForm(forms.ModelForm):
     chave_formulario = forms.UUIDField(widget=forms.HiddenInput)
+    valor_total = ValorBrasileiroField(
+        label="Valor total",
+        min_value=Decimal("0.01"),
+        max_digits=12,
+        decimal_places=2,
+    )
     compartilhar_sala = forms.BooleanField(
         label="Compartilhar na sala",
         required=False,
@@ -31,9 +38,6 @@ class CompraCreditoForm(forms.ModelForm):
         ]
         widgets = {
             "descricao": forms.TextInput(attrs={"placeholder": "Ex.: mercado"}),
-            "valor_total": forms.NumberInput(
-                attrs={"min": "0.01", "step": "0.01", "inputmode": "decimal"}
-            ),
             "data_compra": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "quantidade_parcelas": forms.NumberInput(
                 attrs={"min": "1", "max": "60", "inputmode": "numeric"}
@@ -140,14 +144,11 @@ class CompraRapidaCartaoForm(forms.Form):
         max_length=150,
         widget=forms.TextInput(attrs={"placeholder": "Ex.: Pizza"}),
     )
-    valor_total = forms.DecimalField(
+    valor_total = ValorBrasileiroField(
         label="Valor",
         min_value=Decimal("0.01"),
         max_digits=12,
         decimal_places=2,
-        widget=forms.NumberInput(
-            attrs={"min": "0.01", "step": "0.01", "inputmode": "decimal"}
-        ),
     )
     data_compra = forms.DateField(
         label="Data da compra",

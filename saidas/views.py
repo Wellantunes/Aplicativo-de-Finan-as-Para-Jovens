@@ -17,9 +17,10 @@ from core.espacos import (
     usuario_pode_administrar,
 )
 from core.periodos import (
+    data_inicial_do_mes,
     filtrar_saidas_por_referencia,
     limites_do_mes,
-    mes_de_referencia,
+    mes_ativo,
 )
 
 from .forms import FiltroSaidaForm, PagamentoSaidaForm, SaidaForm
@@ -79,7 +80,7 @@ def _parametros_da_lista(request, mes):
 def _url_da_lista(request):
     if not request.GET:
         return reverse("saidas:lista")
-    mes, _, _ = mes_de_referencia(request.GET.get("mes"))
+    mes, _, _ = mes_ativo(request, request.GET.get("mes"))
     return f"{reverse('saidas:lista')}?{_parametros_da_lista(request, mes)}"
 
 
@@ -97,7 +98,7 @@ def _aplicar_filtros(queryset, form, inicio, fim):
 @login_required
 def lista(request):
     sala = sala_ativa(request)
-    mes, ano, numero_mes = mes_de_referencia(request.GET.get("mes"))
+    mes, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
     inicio, fim = limites_do_mes(ano, numero_mes)
     parametros = request.GET.copy()
     parametros["mes"] = mes
@@ -166,7 +167,13 @@ def lista(request):
 @login_required
 def criar(request):
     sala = sala_ativa(request)
-    form = SaidaForm(request.POST or None, sala=sala, usuario=request.user)
+    mes, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
+    form = SaidaForm(
+        request.POST or None,
+        sala=sala,
+        usuario=request.user,
+        data_inicial=data_inicial_do_mes(ano, numero_mes),
+    )
     if request.method == "POST" and form.is_valid():
         saida, foi_criada = criar_saida(
             sala=sala,
@@ -181,7 +188,7 @@ def criar(request):
             _avisar_saldo_negativo(request, saida)
         else:
             messages.info(request, "Este formulário já havia sido processado.")
-        return redirect(_url_da_lista(request))
+        return redirect(f"{reverse('core:lancamentos')}?tipo=saida&mes={mes}")
     return render(request, "saidas/formulario.html", {
         "form": form,
         "titulo": "Registrar saída",

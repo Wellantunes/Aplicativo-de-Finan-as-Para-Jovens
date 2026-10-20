@@ -26,6 +26,7 @@ from .forms import (
     RegistroRapidoValeForm,
 )
 from .models import AtalhoLancamento
+from .periodos import data_inicial_do_mes, mes_ativo
 from .services import (
     registrar_entrada_por_atalho,
     registrar_saida_por_atalho,
@@ -70,9 +71,7 @@ def lancamentos(request):
     if tipo not in AtalhoLancamento.Tipo.values:
         tipo = AtalhoLancamento.Tipo.SAIDA
     busca = request.GET.get("busca", "").strip()
-    mes = request.GET.get("mes", "")
-    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", mes):
-        mes = ""
+    mes, _, _ = mes_ativo(request, request.GET.get("mes"))
 
     atalhos_do_tipo = _atalhos_do_espaco(request).filter(tipo=tipo)
     atalhos = atalhos_do_tipo.filter(arquivado=False)
@@ -126,9 +125,7 @@ def _salvar_atalho(request, atalho=None):
     )
     if tipo_inicial not in AtalhoLancamento.Tipo.values:
         raise Http404
-    mes_consulta = request.GET.get("mes", "")
-    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", mes_consulta):
-        mes_consulta = ""
+    mes_consulta, _, _ = mes_ativo(request, request.GET.get("mes"))
     form = AtalhoLancamentoForm(
         request.POST or None,
         instance=atalho,
@@ -258,18 +255,18 @@ def registrar_atalho(request, atalho_id):
         if atalho.tipo == AtalhoLancamento.Tipo.ENTRADA
         else RegistroRapidoSaidaForm
     )
-    mes_consulta = (
+    mes_informado = (
         request.POST.get("mes_consulta", "")
         if request.method == "POST"
         else request.GET.get("mes", "")
     )
-    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", mes_consulta):
-        mes_consulta = ""
+    mes_consulta, ano, numero_mes = mes_ativo(request, mes_informado)
     form = classe_formulario(
         request.POST or None,
         atalho=atalho,
         sala=sala,
         usuario=request.user,
+        data_inicial=data_inicial_do_mes(ano, numero_mes),
         initial={"mes_consulta": mes_consulta},
     )
     if request.method == "POST" and form.is_valid():
@@ -292,11 +289,8 @@ def registrar_atalho(request, atalho_id):
             messages.success(request, f"{atalho.get_tipo_display()} registrada com sucesso.")
         else:
             messages.info(request, "Este formulário já havia sido processado.")
-        parametros = f"?salvo={registro.pk}"
-        if mes_consulta:
-            parametros += f"&mes={mes_consulta}"
         return redirect(
-            f"{reverse('core:registrar_atalho', args=[atalho.pk])}{parametros}"
+            f"{reverse('core:lancamentos')}?tipo={atalho.tipo}&mes={mes_consulta}"
         )
 
     registro_salvo = _registro_salvo(request, atalho, atalho.tipo)
@@ -339,19 +333,19 @@ def registrar_vale(request):
 
     sala = sala_ativa(request)
     controla_dizimos = sala.controlar_dizimos if sala else request.user.dizimo_automatico
-    mes_consulta = (
+    mes_informado = (
         request.POST.get("mes_consulta", "")
         if request.method == "POST"
         else request.GET.get("mes", "")
     )
-    if not re.fullmatch(r"\d{4}-(0[1-9]|1[0-2])", mes_consulta):
-        mes_consulta = ""
+    mes_consulta, ano, numero_mes = mes_ativo(request, mes_informado)
 
     form = RegistroRapidoValeForm(
         request.POST or None,
         atalho=None,
         sala=sala,
         usuario=request.user,
+        data_inicial=data_inicial_do_mes(ano, numero_mes),
         initial={"mes_consulta": mes_consulta},
     )
     if request.method == "POST" and form.is_valid():
@@ -365,10 +359,9 @@ def registrar_vale(request):
             messages.success(request, "Vale-alimentação registrado com sucesso.")
         else:
             messages.info(request, "Este formulário já havia sido processado.")
-        parametros = f"?salvo={registro.pk}"
-        if mes_consulta:
-            parametros += f"&mes={mes_consulta}"
-        return redirect(f"{reverse('core:registrar_vale')}{parametros}")
+        return redirect(
+            f"{reverse('core:lancamentos')}?tipo=entrada&mes={mes_consulta}"
+        )
 
     registro_salvo = None
     identificador = request.GET.get("salvo", "")

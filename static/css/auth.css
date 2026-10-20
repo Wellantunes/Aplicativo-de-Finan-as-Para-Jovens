@@ -21,10 +21,11 @@
     width: min(100%, 960px);
     display: grid;
     grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
-    border: 3px solid var(--marinho);
+    border: 2px solid var(--marinho);
+    border-radius: 18px;
     background: var(--creme-claro);
-    box-shadow: 6px 6px 0 rgba(7, 29, 73, .18);
-    clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+    box-shadow: 0 10px 0 rgba(7, 29, 73, .12), 0 30px 70px rgba(7, 29, 73, .16);
+    overflow: hidden;
 }
 
 .auth-visual {
@@ -35,7 +36,7 @@
     flex-direction: column;
     overflow: hidden;
     color: var(--branco);
-    background: var(--azul);
+    background: linear-gradient(145deg, #3565e8 0%, var(--azul-forte) 72%, #173ca9 100%);
 }
 
 .auth-wordmark {
@@ -135,7 +136,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    background: var(--creme-claro);
+    background: var(--superficie);
 }
 
 .auth-card__header {
@@ -171,24 +172,24 @@
     align-items: center;
     justify-content: center;
     gap: 10px;
-    border: 2px solid var(--marinho);
+    border: 1.5px solid var(--marinho);
+    border-radius: 10px;
     color: var(--marinho);
     background: var(--branco);
-    box-shadow: var(--sombra-forte);
+    box-shadow: 0 4px 0 var(--marinho), 0 10px 20px rgba(7, 29, 73, .10);
     font-weight: 800;
     cursor: pointer;
-    clip-path: polygon(5px 0, calc(100% - 5px) 0, 100% 5px, 100% calc(100% - 5px), calc(100% - 5px) 100%, 5px 100%, 0 calc(100% - 5px), 0 5px);
 }
 
 .auth-google-button:hover:not(:disabled) {
     background: #f0f4ff;
-    transform: translate(1px, 1px);
-    box-shadow: 3px 3px 0 var(--marinho);
+    transform: translateY(1px);
+    box-shadow: 0 3px 0 var(--marinho);
 }
 
 .auth-google-button:active:not(:disabled) {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0 var(--marinho);
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 var(--marinho);
 }
 
 .google-mark {
@@ -213,6 +214,7 @@
     margin: 0;
     padding: 10px 12px;
     border-left: 4px solid var(--dourado);
+    border-radius: 8px;
     background: #fff0be;
     font-size: .86rem;
     line-height: 1.4;
@@ -264,7 +266,9 @@
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    border: 1px solid var(--marinho);
+    border: 1px solid rgba(7, 29, 73, .22);
+    border-left: 4px solid var(--azul);
+    border-radius: 9px;
     background: #e8efff;
     font-size: .86rem;
 }

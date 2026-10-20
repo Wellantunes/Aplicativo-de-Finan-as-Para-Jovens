@@ -7,6 +7,7 @@ from django.urls import reverse
 
 from cartoes.forms import CompraCreditoForm
 from contas.forms import ContaForm
+from core.campos import ValorBrasileiroField
 from contas.models import Conta
 from entradas.forms import EntradaForm
 from entradas.models import Entrada, TipoEntrada
@@ -123,3 +124,28 @@ class TecladoDosFormulariosTests(TestCase):
             formulario.fields["quantidade_parcelas"].widget.attrs["inputmode"],
             "numeric",
         )
+
+    def test_campo_monetario_aceita_formatos_comuns_sem_float(self):
+        campo = ValorBrasileiroField(max_digits=12, decimal_places=2)
+
+        self.assertEqual(campo.clean("90"), Decimal("90.00"))
+        self.assertEqual(campo.clean("90,00"), Decimal("90.00"))
+        self.assertEqual(campo.clean("90.00"), Decimal("90.00"))
+        self.assertEqual(campo.clean("R$ 1.234,56"), Decimal("1234.56"))
+
+    def test_campos_financeiros_usam_componente_monetario(self):
+        formularios_e_campos = [
+            (ContaForm(sala=self.sala), "saldo_inicial"),
+            (EntradaForm(sala=self.sala), "valor"),
+            (SaidaForm(sala=self.sala), "valor"),
+            (CompraCreditoForm(sala=self.sala), "valor_total"),
+        ]
+
+        for formulario, nome_campo in formularios_e_campos:
+            with self.subTest(campo=nome_campo):
+                self.assertIsInstance(
+                    formulario.fields[nome_campo], ValorBrasileiroField
+                )
+                self.assertIn(
+                    "data-money-input", formulario.fields[nome_campo].widget.attrs
+                )

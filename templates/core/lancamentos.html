@@ -41,7 +41,7 @@
         {% if tipo_selecionado == 'saida' %}
             {% for cartao in cartoes %}
                 <article class="shortcut-item shortcut-item--card">
-                    <a class="shortcut-tile shortcut-tile--card" href="{% url 'cartoes:criar_compra_cartao' cartao.pk %}">
+                    <a class="shortcut-tile shortcut-tile--card" href="{% url 'cartoes:criar_compra_cartao' cartao.pk %}?mes={{ mes_consulta }}">
                         <span class="shortcut-tile__symbol"><img class="dropduo-png" src="{% static cartao.caminho_simbolo %}" alt=""></span>
                         <strong>Cartão {{ cartao.nome }}</strong>
                         <small>Crédito</small>

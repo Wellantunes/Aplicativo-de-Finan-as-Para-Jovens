@@ -16,9 +16,10 @@ from core.espacos import (
     usuario_pode_administrar,
 )
 from core.periodos import (
+    data_inicial_do_mes,
     filtrar_entradas_por_referencia,
     limites_do_mes,
-    mes_de_referencia,
+    mes_ativo,
 )
 
 from .forms import (
@@ -101,14 +102,14 @@ def _parametros_da_lista(request, mes):
 def _url_da_lista(request):
     if not request.GET:
         return reverse("entradas:lista")
-    mes, _, _ = mes_de_referencia(request.GET.get("mes"))
+    mes, _, _ = mes_ativo(request, request.GET.get("mes"))
     return f"{reverse('entradas:lista')}?{_parametros_da_lista(request, mes)}"
 
 
 @login_required
 def lista(request):
     sala = sala_ativa(request)
-    mes, ano, numero_mes = mes_de_referencia(request.GET.get("mes"))
+    mes, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
     parametros = request.GET.copy()
     parametros["mes"] = mes
     filtro = FiltroEntradaForm(parametros, sala=sala, usuario=request.user)
@@ -163,11 +164,13 @@ def lista(request):
 @login_required
 def criar(request):
     sala = sala_ativa(request)
+    mes, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
     form = EntradaForm(
         request.POST or None,
         sala=sala,
         usuario=request.user,
         controla_dizimos=_dizimos_ativos(sala, request.user),
+        data_inicial=data_inicial_do_mes(ano, numero_mes),
     )
     if request.method == "POST" and form.is_valid():
         entrada, foi_criada = criar_entrada(
@@ -182,7 +185,7 @@ def criar(request):
             messages.success(request, "Entrada registrada com sucesso.")
         else:
             messages.info(request, "Este formulário já havia sido processado.")
-        return redirect(_url_da_lista(request))
+        return redirect(f"{reverse('core:lancamentos')}?tipo=entrada&mes={mes}")
 
     return render(request, "entradas/formulario.html", {
         "form": form,

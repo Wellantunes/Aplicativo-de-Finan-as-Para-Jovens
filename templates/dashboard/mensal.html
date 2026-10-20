@@ -2,7 +2,7 @@
 {% load static financeiro %}
 {% block title %}{{ titulo_espaco }} | Drop Duo{% endblock %}
 {% block body_class %}{% if sala %}dashboard-page{% else %}individual-dashboard-page{% endif %}{% endblock %}
-{% block extra_styles %}{% if not sala %}<link rel="stylesheet" href="{% static 'css/dashboard-individual.css' %}?v=20261019-1">{% endif %}{% endblock %}
+{% block extra_styles %}{% if not sala %}<link rel="stylesheet" href="{% static 'css/dashboard-individual.css' %}?v=20261019-2">{% endif %}{% endblock %}
 {% block content %}
 {% if not sala %}
     {% include "dashboard/individual.html" %}
@@ -12,9 +12,12 @@
     <div class="dashboard-hero{% if sala %} shared-heading{% endif %}">
         {% if sala %}
             <a class="back-link" href="{% url 'salas:voltar_individual' %}">‹ Voltar ao meu espaço</a>
-            <h1 id="titulo-dashboard">{{ sala.nome }}</h1>
-            <div class="room-members-hero">
-                <ul class="member-list" aria-label="Participantes da sala">
+            <div class="shared-room-heading">
+                <div class="shared-room-heading__title">
+                    {% include "includes/dropduo_room_symbol.html" with sala=sala classe="shared-room-heading__symbol" %}
+                    <div><span>Espaço compartilhado</span><h1 id="titulo-dashboard">{{ sala.nome }}</h1></div>
+                </div>
+                <ul class="member-list room-members-hero" aria-label="Participantes da sala">
                     {% for membro in sala.membros.all %}
                         <li class="member-item">
                             {% include "includes/dropduo_avatar.html" with usuario=membro.usuario classe="shared-member-avatar" %}
@@ -22,7 +25,6 @@
                         </li>
                     {% endfor %}
                 </ul>
-                <span class="room-members-hero__label">Espaço<br>compartilhado</span>
             </div>
         {% else %}
             <h1 class="dashboard-title" id="titulo-dashboard">Olá, {{ user.first_name|default:user.username }}</h1>
@@ -34,14 +36,6 @@
                 {% include "dashboard/month_navigation.html" %}
                 {% for erro in filtro.mes.errors %}<p class="field-error">{{ erro }}</p>{% endfor %}
             </div>
-            {% if sala %}
-                <fieldset class="room-filter-pills">
-                    <legend class="sr-only">{{ filtro.responsavel.label }}</legend>
-                    {% for valor, rotulo in filtro.responsavel.field.choices %}
-                        <label><input type="radio" name="responsavel" value="{{ valor }}" {% if filtro.responsavel.value == valor %}checked{% endif %}><span>{{ rotulo }}</span></label>
-                    {% endfor %}
-                </fieldset>
-            {% endif %}
         </form>
     </div>
 

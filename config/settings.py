@@ -114,6 +114,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "core.espacos.contexto_espaco",
+                "core.periodos.contexto_periodo",
             ],
         },
     },

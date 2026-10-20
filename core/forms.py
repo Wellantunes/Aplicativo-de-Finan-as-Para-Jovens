@@ -1,5 +1,5 @@
 import uuid
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal
 
 from django import forms
 from django.utils import timezone
@@ -8,22 +8,8 @@ from entradas.models import Entrada
 from saidas.models import Saida
 
 from .atalhos import categoria_padrao_do_item, simbolos_do_tipo
+from .campos import ValorBrasileiroField
 from .models import AtalhoLancamento
-
-
-class ValorBrasileiroField(forms.DecimalField):
-    """Aceita 1234.56 e o formato brasileiro 1.234,56 sem usar float."""
-
-    def to_python(self, value):
-        if isinstance(value, str):
-            texto = value.strip().replace("R$", "").replace(" ", "")
-            if "," in texto:
-                texto = texto.replace(".", "").replace(",", ".")
-            value = texto
-        try:
-            return super().to_python(value)
-        except (InvalidOperation, ValueError):
-            raise forms.ValidationError("Informe um valor válido.")
 
 
 class AtalhoLancamentoForm(forms.ModelForm):
@@ -71,14 +57,7 @@ class RegistroRapidoBaseForm(forms.Form):
         min_value=Decimal("0.01"),
         max_digits=12,
         decimal_places=2,
-        widget=forms.TextInput(
-            attrs={
-                "inputmode": "decimal",
-                "autocomplete": "off",
-                "placeholder": "0,00",
-                "class": "quick-value-input",
-            }
-        ),
+        widget=forms.TextInput(attrs={"class": "quick-value-input"}),
     )
     data = forms.DateField(
         label="Data prevista ou efetiva",
@@ -94,10 +73,12 @@ class RegistroRapidoBaseForm(forms.Form):
         widget=forms.TextInput(attrs={"placeholder": "Algum detalhe importante"}),
     )
 
-    def __init__(self, *args, atalho, sala=None, usuario=None, **kwargs):
+    def __init__(
+        self, *args, atalho, sala=None, usuario=None, data_inicial=None, **kwargs
+    ):
         kwargs.setdefault("initial", {})
         kwargs["initial"].setdefault("chave_formulario", uuid.uuid4())
-        kwargs["initial"].setdefault("data", timezone.localdate())
+        kwargs["initial"].setdefault("data", data_inicial or timezone.localdate())
         super().__init__(*args, **kwargs)
         self.atalho = atalho
         self.sala = sala

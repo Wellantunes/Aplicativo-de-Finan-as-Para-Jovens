@@ -5,7 +5,9 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages import get_messages
+from django.contrib.messages.storage.base import Message
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.http import HttpResponse
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
 from django.urls import reverse
@@ -145,7 +147,7 @@ class HomeViewTests(TestCase):
 
 
 class AuthenticationLibraryTests(TestCase):
-    def test_somente_confirmacao_de_login_recebe_marcador_temporario(self):
+    def test_confirmacao_de_login_recebe_tag_especifica(self):
         request = RequestFactory().get("/")
         SessionMiddleware(lambda current_request: None).process_request(request)
         request.session.save()
@@ -203,6 +205,67 @@ class AuthenticationLibraryTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
         self.assertIn("accounts.google.com", response.url)
+
+
+class MessageFeedbackTests(TestCase):
+    def _store_messages(self, *stored_messages):
+        request = RequestFactory().get("/")
+        SessionMiddleware(lambda current_request: None).process_request(request)
+        request.session.save()
+        storage = FallbackStorage(request)
+        for stored_message in stored_messages:
+            storage.add(
+                stored_message.level,
+                stored_message.message,
+                stored_message.extra_tags,
+            )
+        response = HttpResponse()
+        storage.update(response)
+        self.client.cookies.update(response.cookies)
+
+    def test_public_layout_only_auto_dismisses_success_and_information(self):
+        self._store_messages(
+            Message(messages.SUCCESS, "Operação concluída"),
+            Message(messages.INFO, "Informação temporária"),
+            Message(messages.WARNING, "Aviso importante"),
+            Message(messages.ERROR, "Erro de validação"),
+        )
+
+        response = self.client.get(reverse("core:home"))
+
+        self.assertContains(response, "data-dismissible-message", count=4)
+        self.assertContains(response, "data-dismiss-message", count=4)
+        self.assertContains(response, 'aria-label="Dispensar aviso"', count=4)
+        self.assertContains(response, "data-auto-dismiss-message", count=2)
+        self.assertContains(response, 'role="alert"', count=1)
+
+    def test_authenticated_layout_uses_the_same_message_lifecycle(self):
+        user = get_user_model().objects.create_user(
+            username="feedback",
+            avatar_concluido=True,
+            configuracao_inicial_concluida=True,
+        )
+        self.client.force_login(user)
+        self._store_messages(
+            Message(messages.SUCCESS, "Item salvo"),
+            Message(messages.ERROR, "Revise os dados"),
+        )
+
+        response = self.client.get(reverse("core:lancamentos"))
+
+        self.assertContains(response, "data-dismissible-message", count=2)
+        self.assertContains(response, "data-dismiss-message", count=2)
+        self.assertContains(response, 'aria-label="Dispensar aviso"', count=2)
+        self.assertContains(response, "data-auto-dismiss-message", count=1)
+
+    def test_rendered_messages_are_consumed_after_the_first_response(self):
+        self._store_messages(Message(messages.SUCCESS, "Mensagem de uma exibição"))
+
+        first_response = self.client.get(reverse("core:home"))
+        second_response = self.client.get(reverse("core:home"))
+
+        self.assertContains(first_response, "Mensagem de uma exibição")
+        self.assertNotContains(second_response, "Mensagem de uma exibição")
 
 
 class MobileExperienceTests(TestCase):

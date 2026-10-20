@@ -1,4 +1,5 @@
 import uuid
+from calendar import monthrange
 from datetime import date, timedelta
 from decimal import Decimal
 from pathlib import Path
@@ -10,7 +11,7 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from contas.models import Conta
+from contas.models import CartaoCredito, Conta
 from entradas.models import ConfiguracaoDizimo, Entrada, FormaCalculoDizimo
 from saidas.models import Saida
 from salas.models import MembroSala, Sala
@@ -326,6 +327,65 @@ class AtalhosLancamentoTests(TestCase):
         self.assertIsNone(saida.conta)
         self.assertEqual(self.conta.saldo_atual, Decimal("100.00"))
 
+    def test_registro_rapido_volta_aos_lancamentos_no_mes_ativo(self):
+        response = self.client.post(
+            reverse("core:registrar_atalho", args=[self.atalho_saida.pk]),
+            self._dados_rapidos(valor="90"),
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("core:lancamentos") + "?tipo=saida&mes=2026-09",
+        )
+        self.assertEqual(Saida.objects.get().valor, Decimal("90.00"))
+
+    def test_mes_escolhido_permanece_na_sessao_e_define_data_inicial(self):
+        self.client.get(reverse("dashboard:mensal"), {"mes": "2026-11"})
+
+        lancamentos = self.client.get(reverse("core:lancamentos"))
+        formulario = self.client.get(
+            reverse("core:registrar_atalho", args=[self.atalho_entrada.pk])
+        )
+
+        self.assertEqual(lancamentos.context["mes_consulta"], "2026-11")
+        self.assertEqual(formulario.context["mes_consulta"], "2026-11")
+        self.assertEqual(
+            formulario.context["form"].initial["data"],
+            date(2026, 11, min(timezone.localdate().day, 30)),
+        )
+
+    def test_mes_ativo_define_datas_de_entrada_saida_vale_e_cartao(self):
+        self.client.get(reverse("dashboard:mensal"), {"mes": "2026-11"})
+        data_esperada = date(2026, 11, min(timezone.localdate().day, 30))
+        cartao = CartaoCredito.objects.create(
+            proprietario_usuario=self.usuario,
+            autor=self.usuario,
+            titular=self.usuario,
+            nome="Cartão pessoal",
+            dia_fechamento=25,
+            dia_vencimento=5,
+        )
+
+        entrada = self.client.get(reverse("entradas:criar"))
+        saida = self.client.get(reverse("saidas:criar"))
+        vale = self.client.get(reverse("core:registrar_vale"))
+        compra = self.client.get(
+            reverse("cartoes:criar_compra_cartao", args=[cartao.pk])
+        )
+
+        self.assertEqual(entrada.context["form"].initial["data"], data_esperada)
+        self.assertEqual(
+            entrada.context["form"].initial["data_prevista"], data_esperada
+        )
+        self.assertEqual(saida.context["form"].initial["vencimento"], data_esperada)
+        self.assertEqual(
+            saida.context["form"].initial["data_pagamento"], data_esperada
+        )
+        self.assertEqual(vale.context["form"].initial["data"], data_esperada)
+        self.assertEqual(
+            compra.context["form"].fields["data_compra"].initial, data_esperada
+        )
+
     def test_registro_rapido_de_entrada_e_idempotente(self):
         chave = uuid.uuid4()
         dados = self._dados_rapidos(valor="200,00", chave=chave)
@@ -381,12 +441,15 @@ class AtalhosLancamentoTests(TestCase):
 
         self.assertIsNone(Entrada.objects.get().sala_compartilhada)
 
-    def test_data_inicial_e_hoje_mes_consultado_nao_a_substitui(self):
+    def test_data_inicial_pertence_ao_mes_consultado(self):
         response = self.client.get(
             reverse("core:registrar_atalho", args=[self.atalho_entrada.pk]),
             {"mes": "2026-09"},
         )
-        self.assertEqual(response.context["form"].initial["data"], timezone.localdate())
+        self.assertEqual(
+            response.context["form"].initial["data"],
+            date(2026, 9, min(timezone.localdate().day, monthrange(2026, 9)[1])),
+        )
         self.assertEqual(response.context["form"].initial["mes_consulta"], "2026-09")
 
     def test_data_manual_e_preservada_e_data_futura_vira_previsao(self):

@@ -1,4 +1,7 @@
+from decimal import Decimal
+
 from django import forms
+from core.campos import ValorBrasileiroField
 
 from .models import Usuario
 from .avatar_catalogo import VERSAO_AVATAR_ATUAL
@@ -6,14 +9,17 @@ from contas.models import CartaoCredito, Conta
 
 
 class ConfiguracaoRendaForm(forms.ModelForm):
+    renda_mensal_prevista = ValorBrasileiroField(
+        label="Renda líquida mensal prevista",
+        required=False,
+        min_value=Decimal("0.00"),
+        max_digits=12,
+        decimal_places=2,
+        help_text="É apenas uma previsão e não altera seu saldo.",
+    )
     class Meta:
         model = Usuario
         fields = ["renda_mensal_prevista"]
-        widgets = {
-            "renda_mensal_prevista": forms.NumberInput(
-                attrs={"min": "0", "step": "0.01", "inputmode": "decimal"}
-            )
-        }
 
 
 class ConfiguracaoDizimoInicialForm(forms.ModelForm):
@@ -86,6 +92,21 @@ class ConfiguracaoInicialFinalForm(forms.Form):
 
 
 class PerfilFinanceiroForm(forms.ModelForm):
+    renda_mensal_prevista = ValorBrasileiroField(
+        label="Renda líquida mensal prevista",
+        required=False,
+        min_value=Decimal("0.00"),
+        max_digits=12,
+        decimal_places=2,
+        help_text="É apenas uma previsão e não altera seu saldo.",
+    )
+    orcamento_mensal_individual = ValorBrasileiroField(
+        label="Orçamento mensal individual",
+        min_value=Decimal("0.00"),
+        max_digits=12,
+        decimal_places=2,
+        help_text="Previsão mensal do seu custo de vida.",
+    )
     class Meta:
         model = Usuario
         fields = [
@@ -97,12 +118,6 @@ class PerfilFinanceiroForm(forms.ModelForm):
             "compartilhar_novos_lancamentos",
         ]
         widgets = {
-            "renda_mensal_prevista": forms.NumberInput(
-                attrs={"min": "0", "step": "0.01", "inputmode": "decimal"}
-            ),
-            "orcamento_mensal_individual": forms.NumberInput(
-                attrs={"min": "0", "step": "0.01", "inputmode": "decimal"}
-            ),
             "percentual_dizimo_padrao": forms.NumberInput(
                 attrs={
                     "min": "0",

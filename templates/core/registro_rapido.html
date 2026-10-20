@@ -28,7 +28,7 @@
             <summary>Adicionar observação</summary>
             <div class="form-field">{{ form.observacao.label_tag }}{{ form.observacao }}{% for error in form.observacao.errors %}<p class="field-error" role="alert">{{ error }}</p>{% endfor %}</div>
         </details>
-        <p class="field-help">A data começa em hoje. O lançamento entra no Resultado do mês escolhido, mesmo antes da confirmação.</p>
+        <p class="field-help">A data começa no mês selecionado. O lançamento entra no Resultado desse mês, mesmo antes da confirmação.</p>
         <button class="button quick-register-submit quick-register-submit--{{ atalho.tipo }}" type="submit">Registrar {{ atalho.get_tipo_display|lower }}</button>
     </form>
 </section>

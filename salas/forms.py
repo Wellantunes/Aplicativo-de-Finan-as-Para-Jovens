@@ -1,9 +1,19 @@
+from decimal import Decimal
+
 from django import forms
+from core.campos import ValorBrasileiroField
 
 from .models import Sala, TAMANHO_CODIGO_CONVITE
 
 
 class SalaForm(forms.ModelForm):
+    orcamento_mensal = ValorBrasileiroField(
+        label="Orçamento mensal",
+        min_value=Decimal("0.00"),
+        max_digits=12,
+        decimal_places=2,
+        help_text="Esta previsão pode ser zero e não altera nenhum saldo.",
+    )
     tipo = forms.ChoiceField(
         label="Tipo",
         required=False,
@@ -25,9 +35,6 @@ class SalaForm(forms.ModelForm):
         widgets = {
             "nome": forms.TextInput(
                 attrs={"autocomplete": "off", "placeholder": "Ex.: Nosso espaço"}
-            ),
-            "orcamento_mensal": forms.NumberInput(
-                attrs={"min": "0", "step": "0.01", "inputmode": "decimal"}
             ),
         }
         help_texts = {

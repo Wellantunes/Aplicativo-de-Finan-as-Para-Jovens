@@ -1,10 +1,17 @@
 from django import forms
 from django.contrib.auth import get_user_model
+from core.campos import ValorBrasileiroField
 
 from .models import CartaoCredito, Conta
 
 
 class ContaForm(forms.ModelForm):
+    saldo_inicial = ValorBrasileiroField(
+        label="Saldo inicial",
+        max_digits=12,
+        decimal_places=2,
+        help_text="Este valor é apenas o ponto de partida, não uma receita.",
+    )
     compartilhar_sala = forms.BooleanField(
         label="Compartilhar esta conta na sala",
         required=False,
@@ -24,9 +31,6 @@ class ContaForm(forms.ModelForm):
         ]
         widgets = {
             "nome": forms.TextInput(attrs={"placeholder": "Ex.: Carteira"}),
-            "saldo_inicial": forms.NumberInput(
-                attrs={"step": "0.01", "inputmode": "decimal"}
-            ),
             "data_saldo_inicial": forms.DateInput(
                 format="%Y-%m-%d",
                 attrs={"type": "date"},

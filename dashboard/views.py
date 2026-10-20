@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.espacos import sala_ativa
+from core.periodos import mes_ativo
 
 from .calculos import calcular_dashboard
 from .forms import FiltroDashboardForm
@@ -34,9 +35,11 @@ def mensal(request):
     if not request.user.avatar_concluido:
         return redirect("usuarios:avatar")
     sala = sala_ativa(request)
-    mes_atual = timezone.localdate().strftime("%Y-%m")
+    mes_atual, _, _ = mes_ativo(request, request.GET.get("mes"))
+    parametros_filtro = request.GET.copy()
+    parametros_filtro.setdefault("mes", mes_atual)
     filtro = FiltroDashboardForm(
-        request.GET or {"mes": mes_atual},
+        parametros_filtro,
         sala=sala,
         usuario=request.user,
     )

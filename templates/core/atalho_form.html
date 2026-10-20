@@ -16,7 +16,7 @@
             {% if field.name == 'simbolo' %}
                 <fieldset class="choice-group shortcut-choice-group">
                     <legend>Símbolo</legend>
-                    <p class="field-help">Escolha um símbolo de {% if tipo_inicial == 'entrada' %}entrada{% else %}saída{% endif %}.</p>
+                    <p class="field-help">Escolha um símbolo de {% if tipo_inicial == 'entrada' %}entrada{% else %}saída{% endif %}. Role dentro da grade para ver mais opções.</p>
                     <div class="symbol-options" data-symbol-options>
                         {% for opcao in opcoes_simbolo %}
                             <label><input type="radio" name="simbolo" value="{{ opcao.id }}" required {% if form.simbolo.value == opcao.id %}checked{% endif %}><span><img class="dropduo-png" src="{% static opcao.arquivo %}" alt=""><small>{{ opcao.nome }}</small></span></label>

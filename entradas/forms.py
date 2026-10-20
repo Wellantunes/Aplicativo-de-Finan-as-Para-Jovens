@@ -1,5 +1,6 @@
 import re
 import uuid
+from decimal import Decimal
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -7,6 +8,7 @@ from django.db.models import Q
 from django.utils import timezone
 
 from contas.models import Conta
+from core.campos import ValorBrasileiroField
 
 from .models import ConfiguracaoDizimo, DevolucaoDizimo, Entrada, TipoEntrada
 
@@ -51,6 +53,20 @@ class FiltroEntradaForm(forms.Form):
 
 class EntradaForm(forms.ModelForm):
     chave_formulario = forms.UUIDField(widget=forms.HiddenInput)
+    valor = ValorBrasileiroField(
+        label="Valor recebido",
+        min_value=Decimal("0.01"),
+        max_digits=12,
+        decimal_places=2,
+        help_text="Informe o valor líquido que realmente recebeu.",
+    )
+    valor_dizimo_manual = ValorBrasileiroField(
+        label="Valor manual",
+        required=False,
+        min_value=Decimal("0.01"),
+        max_digits=12,
+        decimal_places=2,
+    )
     compartilhar_sala = forms.BooleanField(
         label="Compartilhar na sala",
         required=False,
@@ -75,9 +91,6 @@ class EntradaForm(forms.ModelForm):
         ]
         widgets = {
             "descricao": forms.TextInput(attrs={"placeholder": "Ex.: Salário de outubro"}),
-            "valor": forms.NumberInput(
-                attrs={"min": "0.01", "step": "0.01", "inputmode": "decimal"}
-            ),
             "data": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "data_prevista": forms.DateInput(
                 format="%Y-%m-%d", attrs={"type": "date"}
@@ -93,21 +106,22 @@ class EntradaForm(forms.ModelForm):
                     "inputmode": "decimal",
                 }
             ),
-            "valor_dizimo_manual": forms.NumberInput(
-                attrs={"min": "0.01", "step": "0.01", "inputmode": "decimal"}
-            ),
         }
         help_texts = {
             "valor": "Informe o valor líquido que realmente recebeu.",
             "calcular_dizimo": "O valor previsto não será descontado do saldo.",
         }
 
-    def __init__(self, *args, sala=None, usuario=None, controla_dizimos=True, **kwargs):
+    def __init__(
+        self, *args, sala=None, usuario=None, controla_dizimos=True,
+        data_inicial=None, **kwargs
+    ):
         kwargs.setdefault("initial", {})
         kwargs["initial"].setdefault("chave_formulario", uuid.uuid4())
         kwargs["initial"].setdefault("situacao", Entrada.Situacao.RECEBIDA)
-        kwargs["initial"].setdefault("data_prevista", timezone.localdate())
-        kwargs["initial"].setdefault("data", timezone.localdate())
+        data_padrao = data_inicial or timezone.localdate()
+        kwargs["initial"].setdefault("data_prevista", data_padrao)
+        kwargs["initial"].setdefault("data", data_padrao)
         super().__init__(*args, **kwargs)
         self.sala = sala
         self.usuario = usuario
@@ -181,14 +195,18 @@ class RecebimentoEntradaForm(forms.Form):
 
 class DevolucaoDizimoForm(forms.ModelForm):
     chave_formulario = forms.UUIDField(widget=forms.HiddenInput)
+    valor = ValorBrasileiroField(
+        label="Valor",
+        min_value=Decimal("0.01"),
+        max_digits=12,
+        decimal_places=2,
+        help_text="A devolução reduz o saldo da conta escolhida uma única vez.",
+    )
 
     class Meta:
         model = DevolucaoDizimo
         fields = ["valor", "data", "conta"]
         widgets = {
-            "valor": forms.NumberInput(
-                attrs={"min": "0.01", "step": "0.01", "inputmode": "decimal"}
-            ),
             "data": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
         }
 
@@ -214,6 +232,13 @@ class DevolucaoDizimoForm(forms.ModelForm):
 
 
 class ConfiguracaoDizimoForm(forms.ModelForm):
+    valor_dizimo_manual = ValorBrasileiroField(
+        label="Valor manual",
+        required=False,
+        min_value=Decimal("0.01"),
+        max_digits=12,
+        decimal_places=2,
+    )
     class Meta:
         model = ConfiguracaoDizimo
         fields = [
