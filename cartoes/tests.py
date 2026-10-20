@@ -127,6 +127,17 @@ class FluxoCartoesTests(TestCase):
             302,
         )
 
+    def test_compra_completa_redireciona_para_lancamentos_no_mes_ativo(self):
+        self.client.force_login(self.criador)
+        url = f"{reverse('cartoes:criar_compra')}?mes=2026-10"
+
+        response = self.client.post(url, self.dados_formulario())
+
+        self.assertRedirects(
+            response,
+            f"{reverse('core:lancamentos')}?tipo=saida&mes=2026-10",
+        )
+
     def test_compra_ate_fechamento_entra_na_fatura_do_mes(self):
         compra = self.criar_compra_teste(data_compra=date(2026, 10, 10))
 
@@ -653,12 +664,19 @@ class NovasRegrasDeCartaoTests(TestCase):
             "data_compra": "2026-10-31",
             "chave_formulario": chave,
         }
-        url = reverse("cartoes:criar_compra_cartao", args=[self.cartao.pk])
+        url = (
+            reverse("cartoes:criar_compra_cartao", args=[self.cartao.pk])
+            + "?mes=2026-10"
+        )
         primeira = self.client.post(url, dados)
         segunda = self.client.post(url, dados)
 
         self.assertEqual(primeira.status_code, 302)
         self.assertEqual(segunda.status_code, 302)
+        self.assertEqual(
+            primeira.url,
+            reverse("core:lancamentos") + "?tipo=saida&mes=2026-10",
+        )
         self.assertEqual(CompraCredito.objects.count(), 1)
         fatura = CompraCredito.objects.get().parcelas.get().fatura
         self.assertEqual(fatura.data_fechamento, date(2026, 10, 31))

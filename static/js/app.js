@@ -147,30 +147,52 @@ document.querySelectorAll("form[data-auto-submit]").forEach((formulario) => {
     formulario.addEventListener("change", () => formulario.requestSubmit());
 });
 
-function campoDeFormulario(elemento) {
-    return elemento?.matches("input, select, textarea");
+function campoAbreTeclado(elemento) {
+    if (!elemento?.matches("input, textarea")) return false;
+    if (elemento.matches("textarea")) return true;
+    return !elemento.matches(
+        "input[type='radio'], input[type='checkbox'], input[type='hidden'], " +
+        "input[type='button'], input[type='submit'], input[type='reset'], " +
+        "input[type='range'], input[type='color'], input[type='file']",
+    );
 }
 
 document.addEventListener("focusin", (evento) => {
-    if (campoDeFormulario(evento.target)) document.body.classList.add("keyboard-open");
+    if (campoAbreTeclado(evento.target)) document.body.classList.add("keyboard-open");
 });
 
 document.addEventListener("focusout", () => {
     requestAnimationFrame(() => {
-        if (!campoDeFormulario(document.activeElement)) {
+        if (!campoAbreTeclado(document.activeElement)) {
             document.body.classList.remove("keyboard-open");
         }
     });
 });
 
+if (window.visualViewport) {
+    let maiorAlturaVisivel = window.visualViewport.height;
+    window.visualViewport.addEventListener("resize", () => {
+        maiorAlturaVisivel = Math.max(maiorAlturaVisivel, window.visualViewport.height);
+        const tecladoVisivel = maiorAlturaVisivel - window.visualViewport.height > 120;
+        document.body.classList.toggle(
+            "keyboard-open",
+            tecladoVisivel && campoAbreTeclado(document.activeElement),
+        );
+    });
+}
+
 document.querySelectorAll("[data-quick-status]").forEach((grupoSituacao) => {
     const formulario = grupoSituacao.closest("form");
     const campoData = formulario?.querySelector("[data-financial-date]");
-    const opcoes = grupoSituacao.querySelectorAll("input[type='radio']");
-    const tipo = grupoSituacao.querySelector("[data-financial-status]")?.dataset.financialStatus;
-    if (!campoData || !opcoes.length || !tipo) return;
+    const camposSituacao = grupoSituacao.querySelectorAll("[data-financial-status]");
+    const campoSituacao = camposSituacao[0];
+    const tipo = campoSituacao?.dataset.financialStatus;
+    if (!campoData || !camposSituacao.length || !tipo) return;
+
+    let situacaoEscolhidaPelaPessoa = false;
 
     function sugerirSituacaoPelaData() {
+        if (situacaoEscolhidaPelaPessoa) return;
         if (!campoData.value) return;
         const hoje = new Date();
         const dataHoje = [
@@ -181,62 +203,111 @@ document.querySelectorAll("[data-quick-status]").forEach((grupoSituacao) => {
         const valorSugerido = campoData.value > dataHoje
             ? (tipo === "entrada" ? "a_receber" : "pendente")
             : (tipo === "entrada" ? "recebida" : "paga");
-        const opcao = Array.from(opcoes).find((item) => item.value === valorSugerido);
+        if (campoSituacao.matches("select")) {
+            campoSituacao.value = valorSugerido;
+            return;
+        }
+        const opcao = Array.from(camposSituacao).find((item) => item.value === valorSugerido);
         if (opcao) opcao.checked = true;
     }
 
+    camposSituacao.forEach((opcao) => {
+        opcao.addEventListener("change", () => {
+            situacaoEscolhidaPelaPessoa = true;
+        });
+    });
     campoData.addEventListener("change", sugerirSituacaoPelaData);
 });
 
 function lerValorMonetario(texto) {
-    let valor = String(texto || "")
-        .trim()
-        .replace(/R\$/gi, "")
-        .replace(/\s/g, "")
-        .replace(/[^\d,.-]/g, "");
-    if (!valor) return null;
+    let valor = String(texto || "").trim().replace(/\s/g, "");
+    if (/^R\$/i.test(valor)) valor = valor.slice(2);
+    const correspondencia = valor.match(/^([+-]?)([0-9.,]+)$/);
+    if (!correspondencia) return null;
+    const sinal = correspondencia[1];
+    const numero = correspondencia[2];
+    let inteiro;
+    let centavos;
 
-    if (valor.includes(",")) {
-        valor = valor.replace(/\./g, "").replace(",", ".");
-    } else {
-        const pontos = (valor.match(/\./g) || []).length;
-        if (pontos > 1) {
-            const ultimoPonto = valor.lastIndexOf(".");
-            valor = `${valor.slice(0, ultimoPonto).replace(/\./g, "")}${valor.slice(ultimoPonto)}`;
-        }
+    function agrupamentoValido(conteudo) {
+        const partes = conteudo.split(".");
+        return partes.length > 1 && /^[0-9]{1,3}$/.test(partes[0]) &&
+            partes.slice(1).every((parte) => /^[0-9]{3}$/.test(parte));
     }
 
-    const numero = Number(valor);
-    return Number.isFinite(numero) ? numero : null;
+    if (numero.includes(",") && numero.includes(".")) {
+        if ((numero.match(/,/g) || []).length !== 1 || numero.lastIndexOf(",") < numero.lastIndexOf(".")) return null;
+        [inteiro, centavos] = numero.split(",");
+        if (!centavos) return null;
+        if (!agrupamentoValido(inteiro)) return null;
+        inteiro = inteiro.replace(/\./g, "");
+    } else if (numero.includes(",")) {
+        if ((numero.match(/,/g) || []).length !== 1) return null;
+        [inteiro, centavos] = numero.split(",");
+        if (!centavos) return null;
+        if (centavos.length === 3) return null;
+    } else if (numero.includes(".")) {
+        const partes = numero.split(".");
+        if (partes.length > 2 || partes[1].length === 3) {
+            if (!agrupamentoValido(numero)) return null;
+            inteiro = numero.replace(/\./g, "");
+            centavos = "";
+        } else {
+            [inteiro, centavos] = partes;
+            if (!centavos) return null;
+        }
+    } else {
+        inteiro = numero;
+        centavos = "";
+    }
+
+    if (!inteiro) inteiro = "0";
+    if (!/^\d+$/.test(inteiro) || (centavos && !/^\d+$/.test(centavos)) || centavos.length > 2) return null;
+    return {
+        sinal,
+        inteiro: inteiro.replace(/^0+(?=\d)/, ""),
+        centavos,
+    };
 }
 
-const formatadorMonetario = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-});
+function formatarValorMonetario(valor) {
+    const milhares = valor.inteiro.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const centavos = valor.centavos.padEnd(2, "0");
+    return `R$ ${valor.sinal}${milhares},${centavos}`;
+}
 
 document.querySelectorAll("[data-money-input]").forEach((campo) => {
     function formatarCampo() {
         const valor = lerValorMonetario(campo.value);
-        if (valor !== null) campo.value = formatadorMonetario.format(valor);
+        if (valor !== null) campo.value = formatarValorMonetario(valor);
     }
 
     campo.addEventListener("focus", () => {
         const valor = lerValorMonetario(campo.value);
-        if (valor !== null) campo.value = valor.toFixed(2).replace(".", ",");
+        if (valor !== null) {
+            campo.value = `${valor.sinal}${valor.inteiro},${valor.centavos.padEnd(2, "0")}`;
+        }
     });
     campo.addEventListener("blur", formatarCampo);
     formatarCampo();
 });
 
 document.querySelectorAll("[data-symbol-options]").forEach((grade) => {
+    function revelarDentroDaGrade(rotulo) {
+        if (!rotulo) return;
+        const topo = rotulo.offsetTop;
+        const base = topo + rotulo.offsetHeight;
+        if (topo < grade.scrollTop) grade.scrollTop = topo;
+        else if (base > grade.scrollTop + grade.clientHeight) {
+            grade.scrollTop = base - grade.clientHeight;
+        }
+    }
+
     const selecionado = grade.querySelector("input:checked");
-    selecionado?.closest("label")?.scrollIntoView({block: "nearest"});
+    revelarDentroDaGrade(selecionado?.closest("label"));
     grade.addEventListener("change", (evento) => {
         if (evento.target.matches("input[type='radio']")) {
-            evento.target.closest("label")?.scrollIntoView({block: "nearest"});
+            revelarDentroDaGrade(evento.target.closest("label"));
         }
     });
 });

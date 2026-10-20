@@ -1,4 +1,5 @@
-{% load static %}
+{% load avatar_v2 %}
+{% avatar_v2_asset_urls as avatar_asset_urls %}
 <canvas
     class="dropduo-avatar__v2 {{ canvas_classe|default:'' }}"
     width="{% if editor_preview %}512{% else %}160{% endif %}"
@@ -15,10 +16,5 @@
     data-avatar-barba="{{ avatar_barba }}"
     data-avatar-roupa="{{ avatar_roupa }}"
     data-avatar-cor-roupa="{{ avatar_cor_roupa }}"
-    data-asset-base-m="{% static 'dropduo/avatars/v2/pieces/base-m.png' %}"
-    data-asset-base-f="{% static 'dropduo/avatars/v2/pieces/base-f.png' %}"
-    data-asset-jacket-base-m="{% static 'dropduo/avatars/v2/pieces/base-m-jacket.png' %}"
-    data-asset-jacket-base-f="{% static 'dropduo/avatars/v2/pieces/base-f-jacket.png' %}"
-    data-asset-jacket="{% static 'dropduo/avatars/v2/pieces/jacket.png' %}"
-    data-asset-rendered-root="{% static 'dropduo/avatars/v2/pieces/rendered/' %}"
+    data-avatar-assets="{{ avatar_asset_urls }}"
 ></canvas>

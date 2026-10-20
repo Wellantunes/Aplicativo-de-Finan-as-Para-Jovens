@@ -191,6 +191,7 @@ def criar(request):
         "form": form,
         "titulo": "Registrar entrada",
         "texto_botao": "Registrar entrada",
+        "data_mes": data_inicial_do_mes(ano, numero_mes),
         "configuracoes_dizimo": _dados_configuracoes(sala, request.user),
         "voltar_url": _url_da_lista(request),
     })

@@ -442,16 +442,17 @@ body.keyboard-open .quick-add { display: none; }
 .history-options .launch-card { min-height: 88px; }
 .history-options .launch-card img { width: 48px; height: 48px; }
 .shortcut-choice-group { padding: 10px; }
-.symbol-options { max-height: 325px; padding: 3px 7px 10px 3px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; overflow-x: hidden; overflow-y: auto; touch-action: pan-y; scrollbar-color: var(--dourado) var(--creme); scrollbar-width: thin; -webkit-overflow-scrolling: touch; border-bottom: 3px solid var(--dourado); }
+.symbol-options { max-height: 325px; padding: 3px 7px 10px 3px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; overflow-x: hidden; overflow-y: auto; overscroll-behavior-y: contain; touch-action: pan-y; scrollbar-color: var(--dourado) var(--creme); scrollbar-width: thin; -webkit-overflow-scrolling: touch; border-bottom: 3px solid var(--dourado); box-shadow: inset 0 -12px 12px -14px var(--marinho); }
 .symbol-options label { position: relative; min-width: 0; display: block; cursor: pointer; }
 .symbol-options label[hidden] { display: none; }
 .symbol-options input { position: absolute; top: 0; left: 0; width: 1px; height: 1px; margin: 0; opacity: 0; }
-.symbol-options span { min-height: 76px; padding: 6px 3px; display: grid; grid-template-rows: 32px auto; place-items: center; gap: 4px; border: 2px solid transparent; background: var(--creme); text-align: center; }
+.symbol-options span { position: relative; height: 70px; padding: 4px 3px; display: grid; grid-template-rows: 32px 26px; place-items: center; gap: 2px; border: 2px solid transparent; background: var(--creme); text-align: center; }
 .symbol-options img { width: 32px; height: 32px; object-fit: contain; image-rendering: pixelated; }
 .symbol-options small { max-width: 100%; font-size: .68rem; overflow-wrap: anywhere; }
 .symbol-options input:checked + span { border-color: var(--marinho); background: #fff2bd; box-shadow: 0 0 0 3px var(--dourado); }
-.symbol-options input:checked + span::after { content: "Selecionado"; padding: 2px 4px; color: var(--branco); background: var(--azul); font-size: .58rem; font-weight: 900; }
+.symbol-options input:checked + span::after { content: "✓"; position: absolute; top: 2px; right: 2px; width: 18px; height: 18px; display: grid; place-items: center; color: var(--branco); border-radius: 50%; background: var(--azul); font: 900 .7rem/1 var(--fonte-texto); }
 .symbol-options input:focus-visible + span { outline: 4px solid var(--dourado); outline-offset: 2px; }
+.credit-mode { margin: 0; padding: 10px 12px; border-left: 4px solid #8b5cf6; background: #f1e9ff; color: var(--marinho); font-weight: 750; }
 .shortcut-management-list { display: grid; gap: 10px; }
 .shortcut-management-item { padding: 10px; display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 8px 10px; align-items: center; border: var(--borda); background: var(--creme-claro); }
 .shortcut-management-item > img { width: 48px; height: 48px; }
@@ -462,6 +463,9 @@ body.keyboard-open .quick-add { display: none; }
 .shortcut-management-actions button, .shortcut-management-actions a { min-height: 42px; padding: 8px 10px; display: inline-grid; place-items: center; border: 1px solid var(--marinho); color: var(--marinho); background: var(--creme); font-weight: 700; text-decoration: none; cursor: pointer; }
 .shortcut-form-page { border-top: 8px solid var(--coral); }
 .shortcut-form-page--entrada { border-top-color: var(--verde-escuro); }
+.reference-period { margin: 10px 0 0; color: var(--cinza); font-size: .85rem; }
+.reference-period strong { color: var(--marinho); }
+.shortcut-grid--credit-focus .shortcut-item--card:first-child .shortcut-tile { outline: 4px solid var(--dourado); outline-offset: 2px; }
 .quick-register-heading { margin: 10px 0 18px; padding: 10px; display: flex; align-items: center; gap: 12px; border: var(--borda); border-left: 9px solid var(--coral); background: #fff0eb; }
 .quick-register-heading--entrada { border-left-color: var(--verde-escuro); background: #e8f7e9; }
 .quick-register-heading > span { width: 64px; height: 64px; display: grid; place-items: center; }

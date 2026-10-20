@@ -39,7 +39,10 @@ class SaidaForm(forms.ModelForm):
             "descricao": forms.TextInput(
                 attrs={"placeholder": "Ex.: mercado, aluguel ou almoço"}
             ),
-            "vencimento": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
+            "vencimento": forms.DateInput(
+                format="%Y-%m-%d",
+                attrs={"type": "date", "data-financial-date": ""},
+            ),
             "data_pagamento": forms.DateInput(
                 format="%Y-%m-%d",
                 attrs={"type": "date"},
@@ -52,13 +55,22 @@ class SaidaForm(forms.ModelForm):
     def __init__(self, *args, sala=None, usuario=None, data_inicial=None, **kwargs):
         kwargs.setdefault("initial", {})
         kwargs["initial"].setdefault("chave_formulario", uuid.uuid4())
-        kwargs["initial"].setdefault("situacao", Saida.Situacao.PAGA)
         data_padrao = data_inicial or timezone.localdate()
+        kwargs["initial"].setdefault(
+            "situacao",
+            Saida.Situacao.PENDENTE
+            if data_padrao > timezone.localdate()
+            else Saida.Situacao.PAGA,
+        )
         kwargs["initial"].setdefault("vencimento", data_padrao)
-        kwargs["initial"].setdefault("data_pagamento", data_padrao)
+        kwargs["initial"].setdefault(
+            "data_pagamento",
+            None if data_padrao > timezone.localdate() else data_padrao,
+        )
         super().__init__(*args, **kwargs)
         self.sala = sala
         self.usuario = usuario
+        self.fields["situacao"].widget.attrs["data-financial-status"] = "saida"
         if sala:
             if not self.instance.pk:
                 self.instance.sala = sala

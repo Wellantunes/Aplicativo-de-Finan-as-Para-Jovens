@@ -100,6 +100,7 @@ def lancamentos(request):
             "sala": sala,
             "cartoes": cartoes,
             "mostrar_vale": mostrar_vale,
+            "foco_credito": request.GET.get("pagamento") == "credito",
         },
     )
 
@@ -323,6 +324,7 @@ def registrar_atalho(request, atalho_id):
             "confirmacao": confirmacao,
             "form": form,
             "mes_consulta": mes_consulta,
+            "data_mes": data_inicial_do_mes(ano, numero_mes),
         },
     )
 
@@ -397,6 +399,7 @@ def registrar_vale(request):
             "confirmacao": confirmacao,
             "form": form,
             "mes_consulta": mes_consulta,
+            "data_mes": data_inicial_do_mes(ano, numero_mes),
         },
     )
 

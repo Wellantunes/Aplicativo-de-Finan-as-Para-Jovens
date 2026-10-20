@@ -10,6 +10,7 @@
         Compras feitas até o fechamento entram no ciclo atual. O mês exibido na
         fatura é sempre o mês do vencimento.
     </p>
+    {% if data_mes %}<p class="reference-period">Mês de referência: <strong>{{ data_mes|date:"F \d\e Y"|capfirst }}</strong></p>{% endif %}
 
     <form class="form-stack form-section" method="post">
         {% csrf_token %}
@@ -30,7 +31,7 @@
         {% endfor %}
 
         <button class="button" type="submit">{{ texto_botao }}</button>
-        <a class="button button--secondary" href="{% url 'cartoes:lista' %}">Cancelar</a>
+        <a class="button button--secondary" href="{% url 'core:lancamentos' %}?tipo=saida&amp;mes={{ mes_consulta }}">Cancelar</a>
     </form>
 </section>
 {% endblock %}

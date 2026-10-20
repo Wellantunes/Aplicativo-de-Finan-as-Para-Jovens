@@ -76,13 +76,26 @@
         return sequence;
     }
 
+    function assetsFromCanvas(canvas) {
+        try {
+            return JSON.parse(canvas.dataset.avatarAssets || "{}");
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function assetUrl(assets, name) {
+        const url = assets[name];
+        if (!url) throw new Error(`Asset do avatar nÃ£o encontrado: ${name}`);
+        return url;
+    }
+
     async function composeAvatar(canvas, state, baseCatalog) {
-        const assets = canvas.dataset;
-        const renderedRoot = canvas.getAttribute("data-asset-rendered-root");
+        const assets = assetsFromCanvas(canvas);
         const baseSuffix = baseCatalog.assetSuffix;
         const baseAssetName = state.shirt === "camisa_azul"
-            ? `assetJacketBase${baseSuffix}`
-            : `assetBase${baseSuffix}`;
+            ? `jacketBase${baseSuffix}`
+            : `base${baseSuffix}`;
         const baseFileName = baseSuffix.toLowerCase();
         const composition = document.createElement("canvas");
         composition.width = catalog.canvas.width;
@@ -91,37 +104,37 @@
         context.imageSmoothingEnabled = false;
 
         const [base, skin] = await Promise.all([
-            loadImage(assets[baseAssetName]),
-            loadImage(`${renderedRoot}skin/base-${baseFileName}-${state.skin}.png`),
+            loadImage(assetUrl(assets, baseAssetName)),
+            loadImage(assetUrl(assets, `skin/base-${baseFileName}-${state.skin}.png`)),
         ]);
         context.drawImage(base, ...baseCatalog.base);
         context.drawImage(skin, ...baseCatalog.base);
 
         if (state.shirt === "camiseta") {
             const shirt = await loadImage(
-                `${renderedRoot}shirt/base-${baseFileName}-${state.shirtColor}.png`
+                assetUrl(assets, `shirt/base-${baseFileName}-${state.shirtColor}.png`)
             );
             context.drawImage(shirt, ...baseCatalog.base);
         } else {
-            const jacket = await loadImage(assets.assetJacket);
+            const jacket = await loadImage(assetUrl(assets, "jacket"));
             context.drawImage(jacket, ...baseCatalog.jacket);
         }
 
         if (state.beard === "curta") {
             const beard = await loadImage(
-                `${renderedRoot}hair/beard-short-${state.hairColor}.png`
+                assetUrl(assets, `hair/beard-short-${state.hairColor}.png`)
             );
             context.drawImage(beard, ...baseCatalog.beard);
         }
 
         if (state.hair === "curto") {
             const hair = await loadImage(
-                `${renderedRoot}hair/hair-short-${state.hairColor}.png`
+                assetUrl(assets, `hair/hair-short-${state.hairColor}.png`)
             );
             context.drawImage(hair, ...baseCatalog.shortHair);
         } else if (state.hair === "comprido") {
             const hair = await loadImage(
-                `${renderedRoot}hair/hair-long-${state.hairColor}.png`
+                assetUrl(assets, `hair/hair-long-${state.hairColor}.png`)
             );
             context.drawImage(hair, ...baseCatalog.longHair);
         }

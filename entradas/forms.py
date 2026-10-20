@@ -93,7 +93,7 @@ class EntradaForm(forms.ModelForm):
             "descricao": forms.TextInput(attrs={"placeholder": "Ex.: Salário de outubro"}),
             "data": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "data_prevista": forms.DateInput(
-                format="%Y-%m-%d", attrs={"type": "date"}
+                format="%Y-%m-%d", attrs={"type": "date", "data-financial-date": ""}
             ),
             "observacao": forms.TextInput(
                 attrs={"placeholder": "Algum detalhe importante (opcional)"}
@@ -118,15 +118,24 @@ class EntradaForm(forms.ModelForm):
     ):
         kwargs.setdefault("initial", {})
         kwargs["initial"].setdefault("chave_formulario", uuid.uuid4())
-        kwargs["initial"].setdefault("situacao", Entrada.Situacao.RECEBIDA)
         data_padrao = data_inicial or timezone.localdate()
+        kwargs["initial"].setdefault(
+            "situacao",
+            Entrada.Situacao.A_RECEBER
+            if data_padrao > timezone.localdate()
+            else Entrada.Situacao.RECEBIDA,
+        )
         kwargs["initial"].setdefault("data_prevista", data_padrao)
-        kwargs["initial"].setdefault("data", data_padrao)
+        kwargs["initial"].setdefault(
+            "data",
+            None if data_padrao > timezone.localdate() else data_padrao,
+        )
         super().__init__(*args, **kwargs)
         self.sala = sala
         self.usuario = usuario
         self.controla_dizimos = controla_dizimos
         self.fields["situacao"].required = False
+        self.fields["situacao"].widget.attrs["data-financial-status"] = "entrada"
         if sala:
             if not self.instance.pk:
                 self.instance.sala = sala
@@ -170,7 +179,12 @@ class EntradaForm(forms.ModelForm):
                 )
         situacao = dados.get("situacao")
         if not situacao:
-            situacao = Entrada.Situacao.RECEBIDA
+            data_referencia = dados.get("data_prevista") or dados.get("data")
+            situacao = (
+                Entrada.Situacao.A_RECEBER
+                if data_referencia and data_referencia > timezone.localdate()
+                else Entrada.Situacao.RECEBIDA
+            )
             dados["situacao"] = situacao
             self.instance.situacao = situacao
         if situacao == Entrada.Situacao.A_RECEBER:

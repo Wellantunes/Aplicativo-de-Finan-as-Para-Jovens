@@ -262,6 +262,18 @@ class FluxoEntradasTests(TestCase):
         self.assertEqual(Entrada.objects.count(), 1)
         self.assertEqual(self.conta_dinheiro.saldo_atual, Decimal("100.00"))
 
+    def test_criacao_com_data_explicita_volta_aos_lancamentos_no_mes_selecionado(self):
+        self.client.force_login(self.criador)
+        url = reverse("entradas:criar") + "?mes=2026-11"
+
+        response = self.client.post(url, self.dados_entrada(data="2026-10-05"))
+
+        self.assertRedirects(
+            response,
+            reverse("core:lancamentos") + "?tipo=entrada&mes=2026-11",
+        )
+        self.assertEqual(Entrada.objects.get().data, date(2026, 10, 5))
+
     def test_reenvio_da_devolucao_nao_duplica_pagamento(self):
         entrada = self.criar_entrada_salario()
         self.client.force_login(self.parceira)

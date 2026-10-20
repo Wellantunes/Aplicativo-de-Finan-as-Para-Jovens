@@ -96,15 +96,23 @@ class RegistroRapidoEntradaForm(RegistroRapidoBaseForm):
     )
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault("initial", {}).setdefault("situacao", Entrada.Situacao.RECEBIDA)
+        data_inicial = kwargs.get("data_inicial") or timezone.localdate()
+        situacao_inicial = (
+            Entrada.Situacao.A_RECEBER
+            if data_inicial > timezone.localdate()
+            else Entrada.Situacao.RECEBIDA
+        )
+        kwargs.setdefault("initial", {}).setdefault("situacao", situacao_inicial)
         super().__init__(*args, **kwargs)
 
     def clean(self):
         dados = super().clean()
-        if dados.get("data") and dados["data"] > timezone.localdate():
-            dados["situacao"] = Entrada.Situacao.A_RECEBER
-        elif not dados.get("situacao"):
-            dados["situacao"] = Entrada.Situacao.RECEBIDA
+        if not dados.get("situacao"):
+            dados["situacao"] = (
+                Entrada.Situacao.A_RECEBER
+                if dados.get("data") and dados["data"] > timezone.localdate()
+                else Entrada.Situacao.RECEBIDA
+            )
         return dados
 
 
@@ -135,13 +143,21 @@ class RegistroRapidoSaidaForm(RegistroRapidoBaseForm):
     )
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault("initial", {}).setdefault("situacao", Saida.Situacao.PAGA)
+        data_inicial = kwargs.get("data_inicial") or timezone.localdate()
+        situacao_inicial = (
+            Saida.Situacao.PENDENTE
+            if data_inicial > timezone.localdate()
+            else Saida.Situacao.PAGA
+        )
+        kwargs.setdefault("initial", {}).setdefault("situacao", situacao_inicial)
         super().__init__(*args, **kwargs)
 
     def clean(self):
         dados = super().clean()
-        if dados.get("data") and dados["data"] > timezone.localdate():
-            dados["situacao"] = Saida.Situacao.PENDENTE
-        elif not dados.get("situacao"):
-            dados["situacao"] = Saida.Situacao.PAGA
+        if not dados.get("situacao"):
+            dados["situacao"] = (
+                Saida.Situacao.PENDENTE
+                if dados.get("data") and dados["data"] > timezone.localdate()
+                else Saida.Situacao.PAGA
+            )
         return dados

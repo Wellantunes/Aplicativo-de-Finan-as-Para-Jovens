@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Sum
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
@@ -156,7 +157,7 @@ def alternar_arquivo_cartao(request, cartao_id):
 @login_required
 def criar_compra_cartao(request, cartao_id):
     cartao = _cartao_visivel(request, cartao_id, incluir_arquivado=False)
-    _, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
+    mes_consulta, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
     form = CompraRapidaCartaoForm(request.POST or None, cartao=cartao)
     if request.method == "GET":
         form.fields["data_compra"].initial = data_inicial_do_mes(ano, numero_mes)
@@ -191,7 +192,9 @@ def criar_compra_cartao(request, cartao_id):
                 messages.success(request, "Compra registrada com sucesso.")
             else:
                 messages.info(request, "Este formulário já havia sido processado.")
-            return redirect("cartoes:detalhe_cartao", cartao_id=compra.cartao_id)
+            return redirect(
+                f"{reverse('core:lancamentos')}?tipo=saida&mes={mes_consulta}"
+            )
 
     data_previa = form["data_compra"].value() or timezone.localdate().isoformat()
     try:
@@ -207,6 +210,8 @@ def criar_compra_cartao(request, cartao_id):
             "form": form,
             "fechamento_previa": fechamento,
             "vencimento_previa": vencimento,
+            "data_mes": data_inicial_do_mes(ano, numero_mes),
+            "mes_consulta": mes_consulta,
         },
     )
 
@@ -233,7 +238,7 @@ def previa_fatura(request, cartao_id):
 @login_required
 def criar_compra_view(request):
     sala = sala_ativa(request)
-    _, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
+    mes_consulta, ano, numero_mes = mes_ativo(request, request.GET.get("mes"))
     form = CompraCreditoForm(
         request.POST or None,
         sala=sala,
@@ -253,11 +258,19 @@ def criar_compra_view(request):
             messages.success(request, "Compra e parcelas registradas com sucesso.")
         else:
             messages.info(request, "Este formulário já havia sido processado.")
-        return redirect("cartoes:detalhe_cartao", cartao_id=compra.cartao_id)
+        return redirect(
+            f"{reverse('core:lancamentos')}?tipo=saida&mes={mes_consulta}"
+        )
     return render(
         request,
         "cartoes/formulario_compra.html",
-        {"form": form, "titulo": "Registrar compra", "texto_botao": "Registrar compra"},
+        {
+            "form": form,
+            "titulo": "Registrar compra",
+            "texto_botao": "Registrar compra",
+            "data_mes": data_inicial_do_mes(ano, numero_mes),
+            "mes_consulta": mes_consulta,
+        },
     )
 
 

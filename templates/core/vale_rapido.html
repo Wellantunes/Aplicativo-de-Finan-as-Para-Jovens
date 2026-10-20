@@ -11,6 +11,8 @@
         <div><p class="eyebrow">Entrada · benefício</p><h1 id="titulo-registro-vale">Vale-alimentação</h1></div>
     </header>
 
+    <p class="reference-period">Mês de referência: <strong>{{ data_mes|date:"F \d\e Y"|capfirst }}</strong></p>
+
     {% if confirmacao %}
         <div class="quick-register-success" role="status">
             <strong>Registro concluído.</strong>

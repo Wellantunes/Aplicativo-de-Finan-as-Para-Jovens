@@ -11,7 +11,8 @@
         Salários devem ser informados pelo valor líquido que caiu na conta.
     </p>
 
-    <form class="form-stack form-section" method="post" data-entry-form>
+    {% if data_mes %}<p class="reference-period">Mês de referência: <strong>{{ data_mes|date:"F \d\e Y"|capfirst }}</strong></p>{% endif %}
+    <form class="form-stack form-section" method="post" data-entry-form data-quick-status>
         {% csrf_token %}
         {{ form.chave_formulario }}
 
@@ -39,5 +40,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/entradas.js' %}"></script>
+<script src="{% static 'js/entradas.js' %}?v=20261020-1"></script>
 {% endblock %}

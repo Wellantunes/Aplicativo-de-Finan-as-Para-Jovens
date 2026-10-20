@@ -193,6 +193,7 @@ def criar(request):
         "form": form,
         "titulo": "Registrar saída",
         "texto_botao": "Registrar saída",
+        "data_mes": data_inicial_do_mes(ano, numero_mes),
         "voltar_url": _url_da_lista(request),
     })
 

@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django.urls import reverse
 
@@ -129,9 +130,28 @@ class TecladoDosFormulariosTests(TestCase):
         campo = ValorBrasileiroField(max_digits=12, decimal_places=2)
 
         self.assertEqual(campo.clean("90"), Decimal("90.00"))
+        self.assertEqual(campo.clean("9050"), Decimal("9050.00"))
+        self.assertEqual(campo.clean("90,50"), Decimal("90.50"))
         self.assertEqual(campo.clean("90,00"), Decimal("90.00"))
         self.assertEqual(campo.clean("90.00"), Decimal("90.00"))
         self.assertEqual(campo.clean("R$ 1.234,56"), Decimal("1234.56"))
+        self.assertEqual(campo.clean("1.234"), Decimal("1234.00"))
+
+    def test_campo_monetario_rejeita_formato_ambiguo_ou_centavos_excedentes(self):
+        campo = ValorBrasileiroField(max_digits=12, decimal_places=2)
+
+        for valor in (
+            "1,234",
+            "90,505",
+            "90.5050",
+            "1,234.56",
+            "12..34",
+            "90,",
+            "90.",
+            "1.234,",
+        ):
+            with self.subTest(valor=valor), self.assertRaises(ValidationError):
+                campo.clean(valor)
 
     def test_campos_financeiros_usam_componente_monetario(self):
         formularios_e_campos = [
@@ -149,3 +169,24 @@ class TecladoDosFormulariosTests(TestCase):
                 self.assertIn(
                     "data-money-input", formulario.fields[nome_campo].widget.attrs
                 )
+
+    def test_formularios_completos_nascem_pendentes_em_mes_futuro(self):
+        data_futura = date(2099, 1, 20)
+
+        entrada = EntradaForm(
+            sala=self.sala,
+            usuario=self.usuario,
+            data_inicial=data_futura,
+        )
+        saida = SaidaForm(
+            sala=self.sala,
+            usuario=self.usuario,
+            data_inicial=data_futura,
+        )
+
+        self.assertEqual(
+            entrada.initial["situacao"], Entrada.Situacao.A_RECEBER
+        )
+        self.assertEqual(saida.initial["situacao"], Saida.Situacao.PENDENTE)
+        self.assertIsNone(entrada.initial["data"])
+        self.assertIsNone(saida.initial["data_pagamento"])

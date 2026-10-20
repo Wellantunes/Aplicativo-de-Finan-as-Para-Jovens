@@ -323,6 +323,21 @@ class FluxoSaidasTests(TestCase):
         self.assertEqual(Saida.objects.count(), 1)
         self.assertEqual(self.conta_dinheiro.saldo_atual, Decimal("2900.00"))
 
+    def test_criacao_com_data_explicita_volta_aos_lancamentos_no_mes_selecionado(self):
+        self.client.force_login(self.criador)
+        url = reverse("saidas:criar") + "?mes=2026-11"
+
+        response = self.client.post(
+            url,
+            self.dados_formulario(vencimento="2026-10-10"),
+        )
+
+        self.assertRedirects(
+            response,
+            reverse("core:lancamentos") + "?tipo=saida&mes=2026-11",
+        )
+        self.assertEqual(Saida.objects.get().vencimento, date(2026, 10, 10))
+
     def test_reenvio_do_pagamento_desconta_uma_unica_vez(self):
         saida = self.criar_pendente(valor=Decimal("500.00"))
         self.client.force_login(self.parceira)

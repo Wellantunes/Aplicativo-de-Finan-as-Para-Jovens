@@ -10,6 +10,7 @@
         <span><img class="dropduo-png" src="{% static atalho.caminho_simbolo %}" alt=""></span>
         <div><p class="eyebrow">{{ atalho.get_tipo_display }}</p><h1 id="titulo-registro">{{ atalho.nome }}</h1></div>
     </header>
+    <p class="reference-period">Mês de referência: <strong>{{ data_mes|date:"F \d\e Y"|capfirst }}</strong></p>
     {% if confirmacao %}
         <div class="quick-register-success" role="status"><strong>Registro concluído.</strong><span>{{ confirmacao.texto_periodo }}</span>{% if confirmacao.fora_do_periodo %}<span>O mês consultado não alterou a data do lançamento.</span>{% endif %}<a href="{{ confirmacao.url_historico }}">Ver no período correto</a></div>
     {% endif %}

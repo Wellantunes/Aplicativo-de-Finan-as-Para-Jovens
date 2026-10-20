@@ -6,16 +6,21 @@ if (formularioSaida) {
     const camposPagos = ["data_pagamento", "forma_pagamento", "conta"];
 
     function atualizarCamposVisiveis() {
+        if (!situacao) return;
         const estaPaga = situacao.value === "paga";
 
         camposPendentes.forEach((nome) => {
-            formularioSaida.querySelector(`[data-field-name="${nome}"]`).hidden = estaPaga;
+            const grupo = formularioSaida.querySelector(`[data-field-name="${nome}"]`);
+            if (grupo) grupo.hidden = estaPaga;
         });
         camposPagos.forEach((nome) => {
-            formularioSaida.querySelector(`[data-field-name="${nome}"]`).hidden = !estaPaga;
+            const grupo = formularioSaida.querySelector(`[data-field-name="${nome}"]`);
+            if (grupo) grupo.hidden = !estaPaga;
         });
     }
 
-    situacao.addEventListener("change", atualizarCamposVisiveis);
-    atualizarCamposVisiveis();
+    if (situacao) {
+        situacao.addEventListener("change", atualizarCamposVisiveis);
+        atualizarCamposVisiveis();
+    }
 }

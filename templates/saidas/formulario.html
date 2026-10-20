@@ -11,7 +11,8 @@
         Pendências não reduzem o saldo. Pagamentos são descontados da conta escolhida.
     </p>
 
-    <form class="form-stack form-section" method="post" data-expense-form>
+    {% if data_mes %}<p class="reference-period">Mês de referência: <strong>{{ data_mes|date:"F \d\e Y"|capfirst }}</strong></p>{% endif %}
+    <form class="form-stack form-section" method="post" data-expense-form data-quick-status>
         {% csrf_token %}
         {{ form.chave_formulario }}
         {% for field in form.visible_fields %}
@@ -35,5 +36,5 @@
 {% endblock %}
 
 {% block extra_scripts %}
-<script src="{% static 'js/saidas.js' %}"></script>
+<script src="{% static 'js/saidas.js' %}?v=20261020-1"></script>
 {% endblock %}

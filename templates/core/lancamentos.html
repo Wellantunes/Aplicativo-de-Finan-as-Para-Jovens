@@ -28,7 +28,11 @@
             <div><input id="busca-atalho" name="busca" type="search" value="{{ busca }}" placeholder="Ex.: Mercado"><button class="button button--secondary" type="submit">Buscar</button></div>
         </form>
 
-        <div class="shortcut-grid" aria-label="Itens de {{ tipo_selecionado }}">
+        {% if foco_credito and tipo_selecionado == 'saida' %}
+            <p class="credit-mode" role="status">Compra no crédito selecionada. Escolha o cartão.</p>
+        {% endif %}
+
+        <div class="shortcut-grid{% if foco_credito %} shortcut-grid--credit-focus{% endif %}" id="{% if tipo_selecionado == 'saida' %}cartoes-credito{% else %}itens-entrada{% endif %}" aria-label="Itens de {{ tipo_selecionado }}">
         {% if mostrar_vale %}
             <article class="shortcut-item shortcut-item--entrada shortcut-item--vale">
                 <a class="shortcut-tile shortcut-tile--entrada" href="{% url 'core:registrar_vale' %}{% if mes_consulta %}?mes={{ mes_consulta }}{% endif %}">

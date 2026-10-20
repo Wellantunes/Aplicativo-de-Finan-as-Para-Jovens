@@ -9,6 +9,7 @@
         <img class="dropduo-png" src="{% static cartao.caminho_simbolo %}" alt="">
         <div><p class="eyebrow">Compra no crédito</p><h1 id="titulo-pagina">{{ cartao.nome }}</h1></div>
     </header>
+    <p class="reference-period">Mês de referência: <strong>{{ data_mes|date:"F \d\e Y"|capfirst }}</strong></p>
 
     <form class="form-stack form-section" method="post" data-purchase-form data-preview-url="{% url 'cartoes:previa_fatura' cartao.pk %}">
         {% csrf_token %}
@@ -34,7 +35,7 @@
             <span>Vence em <b data-preview-due>{{ vencimento_previa|date:"d/m/Y" }}</b></span>
         </div>
         <button class="button" type="submit">Registrar compra</button>
-        <a class="button button--secondary" href="{% url 'core:lancamentos' %}?tipo=saida">Cancelar</a>
+        <a class="button button--secondary" href="{% url 'core:lancamentos' %}?tipo=saida&amp;mes={{ mes_consulta }}">Cancelar</a>
     </form>
 </section>
 {% endblock %}

@@ -354,6 +354,43 @@ class AtalhosLancamentoTests(TestCase):
             date(2026, 11, min(timezone.localdate().day, 30)),
         )
 
+    def test_mes_futuro_nasce_com_situacao_prevista_no_servidor(self):
+        mes_futuro = (timezone.localdate().replace(day=1) + timedelta(days=62)).strftime(
+            "%Y-%m"
+        )
+
+        entrada = self.client.get(
+            reverse("core:registrar_atalho", args=[self.atalho_entrada.pk]),
+            {"mes": mes_futuro},
+        )
+        saida = self.client.get(
+            reverse("core:registrar_atalho", args=[self.atalho_saida.pk]),
+            {"mes": mes_futuro},
+        )
+
+        self.assertEqual(
+            entrada.context["form"].initial["situacao"],
+            Entrada.Situacao.A_RECEBER,
+        )
+        self.assertEqual(
+            saida.context["form"].initial["situacao"],
+            Saida.Situacao.PENDENTE,
+        )
+
+    def test_situacao_futura_escolhida_explicitamente_e_preservada(self):
+        data_futura = timezone.localdate() + timedelta(days=30)
+        dados = self._dados_rapidos(data=data_futura)
+        dados["situacao"] = Entrada.Situacao.RECEBIDA
+
+        self.client.post(
+            reverse("core:registrar_atalho", args=[self.atalho_entrada.pk]),
+            dados,
+        )
+
+        entrada = Entrada.objects.get()
+        self.assertEqual(entrada.situacao, Entrada.Situacao.RECEBIDA)
+        self.assertEqual(entrada.data, data_futura)
+
     def test_mes_ativo_define_datas_de_entrada_saida_vale_e_cartao(self):
         self.client.get(reverse("dashboard:mensal"), {"mes": "2026-11"})
         data_esperada = date(2026, 11, min(timezone.localdate().day, 30))
@@ -373,17 +410,38 @@ class AtalhosLancamentoTests(TestCase):
             reverse("cartoes:criar_compra_cartao", args=[cartao.pk])
         )
 
-        self.assertEqual(entrada.context["form"].initial["data"], data_esperada)
+        self.assertIsNone(entrada.context["form"].initial["data"])
         self.assertEqual(
             entrada.context["form"].initial["data_prevista"], data_esperada
         )
         self.assertEqual(saida.context["form"].initial["vencimento"], data_esperada)
-        self.assertEqual(
-            saida.context["form"].initial["data_pagamento"], data_esperada
-        )
+        self.assertIsNone(saida.context["form"].initial["data_pagamento"])
         self.assertEqual(vale.context["form"].initial["data"], data_esperada)
         self.assertEqual(
             compra.context["form"].fields["data_compra"].initial, data_esperada
+        )
+
+    def test_atalho_de_credito_abre_cartoes_com_mes_e_meio_selecionados(self):
+        cartao = CartaoCredito.objects.create(
+            proprietario_usuario=self.usuario,
+            autor=self.usuario,
+            titular=self.usuario,
+            nome="Cartão pessoal",
+            dia_fechamento=25,
+            dia_vencimento=5,
+        )
+
+        response = self.client.get(
+            reverse("core:lancamentos"),
+            {"tipo": "saida", "mes": "2026-11", "pagamento": "credito"},
+        )
+
+        self.assertTrue(response.context["foco_credito"])
+        self.assertContains(response, "Compra no crédito selecionada")
+        self.assertContains(
+            response,
+            reverse("cartoes:criar_compra_cartao", args=[cartao.pk])
+            + "?mes=2026-11",
         )
 
     def test_registro_rapido_de_entrada_e_idempotente(self):
